@@ -1,1 +1,1 @@
-# iata-dat-poc-2025-di-airline-retailing-verification
+# iata-dat-poc-c2-di-verification-indirect-distribution
