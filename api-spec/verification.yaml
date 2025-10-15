@@ -171,11 +171,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               examples:
-                missingRequiredClaim:
+                unknownIssuer:
                   summary: Unknown Issuer
                   value:
                     error: "UNKNOWN_ISSUER"
-                    message: "VP is missing required claims for this service"
+                    message: "The issuer of the VP is unknown"
                     details:
                       issuer: "did:web:xxxx"
         "500":
