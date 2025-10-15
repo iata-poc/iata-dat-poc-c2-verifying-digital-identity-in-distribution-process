@@ -272,14 +272,6 @@ components:
               items:
                 type: string
               description: Type(s) of the credential (SD-JWT VC, W3C VCDM)
-            disclosedClaims:
-              type: array
-              items:
-                type: string
-              description: List of disclosed claims (SD-JWT VC specific)
-            undisclosedClaimsCount:
-              type: integer
-              description: Number of undisclosed claims (SD-JWT VC specific)
             docType:
               type: string
               description: Document type (mDOC specific)
