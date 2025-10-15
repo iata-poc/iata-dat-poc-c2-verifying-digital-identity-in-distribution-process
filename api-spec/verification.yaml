@@ -31,6 +31,7 @@ paths:
                 summary: SD-JWT VC format
                 value:
                   vp: "eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9...~WyJPMTFySVRjRTdHcXExYW9oRkd0aDh3IiwgImdpdmVuX25hbWUiLCAiSm9obiJd~"
+                  vp_format: "sd-jwt-vc"
               w3cVcdm:
                 summary: W3C VCDM (JSON-LD) format
                 value:
@@ -49,10 +50,16 @@ paths:
                         },
                       ]
                     proof: {}
+                  vp_format: "vcdm-jsonld"
               mdoc:
                 summary: mDOC format (ISO 18013-5)
                 value:
                   vp: "oRGhhSUBlbGVtZW50SWRlbnRpZmllcngYb3JnLmlzby4xODAxMy41LjEubURMaWRvY3VtZW50c..."
+                  vp_format: "mdoc"
+              autoDetect:
+                summary: Auto-detect format (vp_format omitted)
+                value:
+                  vp: "eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9...~WyJPMTFySVRjRTdHcXExYW9oRkd0aDh3IiwgImdpdmVuX25hbWUiLCAiSm9obiJd~"
       responses:
         "200":
           description: VP verification successful
@@ -139,6 +146,14 @@ paths:
                     details:
                       supportedFormats:
                         ["SD-JWT VC", "W3C VCDM (JSON-LD)", "mDOC"]
+                formatMismatch:
+                  summary: VP format mismatch
+                  value:
+                    error: "FORMAT_MISMATCH"
+                    message: "The specified vp_format does not match the actual VP format"
+                    details:
+                      specifiedFormat: "sd-jwt-vc"
+                      detectedFormat: "mdoc"
         "401":
           description: Unauthorized - VP verification failed
           content:
@@ -197,7 +212,15 @@ components:
               description: SD-JWT VC or mDOC (base64 encoded)
             - type: object
               description: W3C VCDM JSON-LD object
-          description: The Verifiable Presentation to verify. The API will auto-detect the format.
+          description: The Verifiable Presentation to verify. The API will auto-detect the format if vp_format is not specified.
+        vp_format:
+          type: string
+          description: Optional format hint for the VP. If specified, the API will validate that the VP matches this format. If omitted, the API will auto-detect the format.
+          enum:
+            - sd-jwt-vc
+            - vcdm-jsonld
+            - mdoc
+          example: "sd-jwt-vc"
     VerifyVPResponse:
       type: object
       required:
@@ -210,7 +233,7 @@ components:
           description: Whether the VP was successfully verified
         format:
           type: string
-          description: Auto-detected format of the VP
+          description: Auto-detected or validated format of the VP
           example: "sd-jwt-vc"
         issuer:
           type: object
