@@ -56,10 +56,6 @@ paths:
                 value:
                   vp: "oRGhhSUBlbGVtZW50SWRlbnRpZmllcngYb3JnLmlzby4xODAxMy41LjEubURMaWRvY3VtZW50c..."
                   vp_format: "mdoc"
-              autoDetect:
-                summary: Auto-detect format (vp_format omitted)
-                value:
-                  vp: "eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9...~WyJPMTFySVRjRTdHcXExYW9oRkd0aDh3IiwgImdpdmVuX25hbWUiLCAiSm9obiJd~"
       responses:
         "200":
           description: VP verification successful
@@ -198,6 +194,7 @@ components:
       type: object
       required:
         - vp
+        - vp_format
       properties:
         vp:
           oneOf:
@@ -205,10 +202,10 @@ components:
               description: SD-JWT VC or mDOC (base64 encoded)
             - type: object
               description: W3C VCDM JSON-LD object
-          description: The Verifiable Presentation to verify. The API will auto-detect the format if vp_format is not specified.
+          description: The Verifiable Presentation to verify
         vp_format:
           type: string
-          description: Optional format hint for the VP. If specified, the API will validate that the VP matches this format. If omitted, the API will auto-detect the format.
+          description: Format of the VP being verified
           enum:
             - sd-jwt-vc
             - vcdm-jsonld
@@ -226,7 +223,7 @@ components:
           description: Whether the VP was successfully verified
         format:
           type: string
-          description: Auto-detected or validated format of the VP
+          description: Format of the verified VP
           example: "sd-jwt-vc"
         issuer:
           type: object
