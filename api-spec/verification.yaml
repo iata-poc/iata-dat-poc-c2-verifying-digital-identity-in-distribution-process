@@ -120,10 +120,9 @@ paths:
                       family_name: "Smith"
                       birth_date: "1985-03-15"
                       document_number: "DL123456789"
-                      driving_privileges:
-                        vehicle_category_code: "A"
-                        issue_date: "2020-01-15"
-                        expiry_date: "2030-01-15"
+                      vehicle_category_code: "A"
+                      issue_date: "2020-01-15"
+                      expiry_date: "2030-01-15"
                     metadata:
                       docType: "org.iso.18013.5.1.mDL"
                       validityInfo:
