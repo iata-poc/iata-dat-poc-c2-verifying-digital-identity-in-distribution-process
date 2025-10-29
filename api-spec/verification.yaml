@@ -85,10 +85,6 @@ paths:
                     metadata:
                       issuanceDate: "2023-01-01T00:00:00Z"
                       expirationDate: "2033-01-01T00:00:00Z"
-                      credentialType: ["PassportCredential"]
-                      disclosedClaims:
-                        ["given_name", "family_name", "passport_number"]
-                      undisclosedClaimsCount: 2
                 w3cVcdmSuccess:
                   summary: W3C VCDM verification success
                   value:
@@ -105,8 +101,6 @@ paths:
                     metadata:
                       issuanceDate: "2023-06-20T00:00:00Z"
                       expirationDate: "2073-06-20T00:00:00Z"
-                      credentialType:
-                        ["VerifiableCredential", "UniversityDegreeCredential"]
                 mdocSuccess:
                   summary: mDOC verification success
                   value:
