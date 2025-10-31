@@ -1,0 +1,331 @@
+openapi: 3.0.3
+info:
+  title: VP Verification API
+  description: API for verifying Verifiable Presentations (VP) supporting SD-JWT VC, W3C VCDM (JSON-LD), and mDOC formats
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: lukas@hopae.com
+servers:
+  - url: https://api.iata.hopae.app/v1
+    description: Production server(TBD)
+tags:
+  - name: Verification
+    description: VP verification operations
+paths:
+  /verify/vp:
+    post:
+      tags:
+        - Verification
+      summary: Verify a Verifiable Presentation
+      description: Verifies the authenticity and validity of a Verifiable Presentation (SD-JWT VC, W3C VCDM, or mDOC) and returns parsed credential data
+      operationId: verifyVP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyVPRequest"
+            examples:
+              sdJwtVc:
+                summary: SD-JWT VC format
+                value:
+                  vp: "eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9...~WyJPMTFySVRjRTdHcXExYW9oRkd0aDh3IiwgImdpdmVuX25hbWUiLCAiSm9obiJd~"
+                  vp_format: "sd-jwt-vc"
+              w3cVcdm:
+                summary: W3C VCDM (JSON-LD) format
+                value:
+                  vp:
+                    "@context": ["https://www.w3.org/2018/credentials/v1"]
+                    type: ["VerifiablePresentation"]
+                    verifiableCredential:
+                      [
+                        {
+                          "@context":
+                            ["https://www.w3.org/2018/credentials/v1"],
+                          "type":
+                            ["VerifiableCredential", "PassportCredential"],
+                          "issuer": "did:example:gov123",
+                          "credentialSubject": {},
+                        },
+                      ]
+                    proof: {}
+                  vp_format: "vcdm-jsonld"
+              mdoc:
+                summary: mDOC format (ISO 18013-5)
+                value:
+                  vp: "oRGhhSUBlbGVtZW50SWRlbnRpZmllcngYb3JnLmlzby4xODAxMy41LjEubURMaWRvY3VtZW50c..."
+                  vp_format: "mdoc"
+      responses:
+        "200":
+          description: VP verification successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyVPResponse"
+              examples:
+                sdJwtVcSuccess:
+                  summary: SD-JWT VC verification success
+                  value:
+                    verified: true
+                    format: "sd-jwt-vc"
+                    issuer:
+                      id: "did:example:gov123"
+                      name: "Government Identity Authority"
+                    claims:
+                      given_name: "John"
+                      family_name: "Doe"
+                      birth_date: "1990-01-01"
+                      nationality: "US"
+                      passport_number: "123456789"
+                    metadata:
+                      issuanceDate: "2023-01-01T00:00:00Z"
+                      expirationDate: "2033-01-01T00:00:00Z"
+                w3cVcdmSuccess:
+                  summary: W3C VCDM verification success
+                  value:
+                    verified: true
+                    format: "vcdm-jsonld"
+                    issuer:
+                      id: "did:example:edu456"
+                      name: "University Credentials Department"
+                    claims:
+                      degree_type: "Bachelor of Science"
+                      degree_name: "Computer Science"
+                      graduation_date: "2023-06-15"
+                      student_id: "ST2019001234"
+                    metadata:
+                      issuanceDate: "2023-06-20T00:00:00Z"
+                      expirationDate: "2073-06-20T00:00:00Z"
+                mdocSuccess:
+                  summary: mDOC verification success
+                  value:
+                    verified: true
+                    format: "mdoc"
+                    issuer:
+                      id: "did:mdl:gov:us:dmv"
+                      name: "Department of Motor Vehicles"
+                    claims:
+                      given_name: "Jane"
+                      family_name: "Smith"
+                      birth_date: "1985-03-15"
+                      document_number: "DL123456789"
+                      vehicle_category_code: "A"
+                      issue_date: "2020-01-15"
+                      expiry_date: "2030-01-15"
+                    metadata:
+                      docType: "org.iso.18013.5.1.mDL"
+                      validityInfo:
+                        signed: "2023-01-15T10:00:00Z"
+                        validFrom: "2023-01-15T10:00:00Z"
+                        validUntil: "2028-01-15T10:00:00Z"
+                      nameSpaces: ["org.iso.18013.5.1"]
+        "400":
+          description: Bad Request - Invalid VP format or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalidFormat:
+                  summary: Invalid VP format
+                  value:
+                    error: "INVALID_FORMAT"
+                    message: "The provided VP format is not recognized or is malformed"
+                    details:
+                      supportedFormats:
+                        ["SD-JWT VC", "W3C VCDM (JSON-LD)", "mDOC"]
+                formatMismatch:
+                  summary: VP format mismatch
+                  value:
+                    error: "FORMAT_MISMATCH"
+                    message: "The specified vp_format does not match the actual VP format"
+                    details:
+                      specifiedFormat: "sd-jwt-vc"
+                      detectedFormat: "mdoc"
+        "401":
+          description: Unauthorized - VP verification failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerificationFailureResponse"
+              examples:
+                signatureInvalid:
+                  summary: Invalid signature
+                  value:
+                    verified: false
+                    error: "SIGNATURE_VERIFICATION_FAILED"
+                    message: "VP signature verification failed"
+                    details:
+                      reason: "Invalid signature"
+                      checkedAt: "2024-01-15T14:30:00Z"
+                expiredCredential:
+                  summary: Expired credential
+                  value:
+                    verified: false
+                    error: "CREDENTIAL_EXPIRED"
+                    message: "The credential has expired"
+                    details:
+                      expirationDate: "2023-01-01T00:00:00Z"
+                      currentDate: "2024-01-15T14:30:00Z"
+        "422":
+          description: Unprocessable Entity - VP is valid but doesn't meet business requirements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                unknownIssuer:
+                  summary: Unknown Issuer
+                  value:
+                    error: "UNKNOWN_ISSUER"
+                    message: "The issuer of the VP is unknown"
+                    details:
+                      issuer: "did:web:xxxx"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    VerifyVPRequest:
+      type: object
+      required:
+        - vp
+        - vp_format
+      properties:
+        vp:
+          oneOf:
+            - type: string
+              description: SD-JWT VC or mDOC (base64 encoded)
+            - type: object
+              description: W3C VCDM JSON-LD object
+          description: The Verifiable Presentation to verify
+        vp_format:
+          type: string
+          description: Format of the VP being verified
+          enum:
+            - sd-jwt-vc
+            - vcdm-jsonld
+            - mdoc
+          example: "sd-jwt-vc"
+    VerifyVPResponse:
+      type: object
+      required:
+        - verified
+        - issuer
+        - claims
+      properties:
+        verified:
+          type: boolean
+          description: Whether the VP was successfully verified
+        format:
+          type: string
+          description: Format of the verified VP
+          example: "sd-jwt-vc"
+        issuer:
+          type: object
+          description: Information about the credential issuer
+          required:
+            - id
+          properties:
+            id:
+              type: string
+              description: DID or identifier of the issuer
+            name:
+              type: string
+              description: Human-readable name of the issuer
+        claims:
+          type: object
+          description: Verified claims from the credential
+          additionalProperties: true
+          example:
+            given_name: "John"
+            family_name: "Doe"
+            birth_date: "1990-01-01"
+        metadata:
+          type: object
+          description: Format-specific metadata
+          properties:
+            issuanceDate:
+              type: string
+              format: date-time
+              description: When the credential was issued (SD-JWT VC, W3C VCDM)
+            expirationDate:
+              type: string
+              format: date-time
+              description: When the credential expires (SD-JWT VC, W3C VCDM)
+            credentialType:
+              type: array
+              items:
+                type: string
+              description: Type(s) of the credential (SD-JWT VC, W3C VCDM)
+            docType:
+              type: string
+              description: Document type (mDOC specific)
+            validityInfo:
+              type: object
+              description: Validity information (mDOC specific)
+              properties:
+                signed:
+                  type: string
+                  format: date-time
+                validFrom:
+                  type: string
+                  format: date-time
+                validUntil:
+                  type: string
+                  format: date-time
+            nameSpaces:
+              type: array
+              items:
+                type: string
+              description: Namespaces used (mDOC specific)
+    VerificationFailureResponse:
+      type: object
+      required:
+        - verified
+        - error
+        - message
+      properties:
+        verified:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error details
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code for programmatic handling
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional context about the error
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
