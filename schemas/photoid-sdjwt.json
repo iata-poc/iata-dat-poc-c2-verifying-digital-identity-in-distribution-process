@@ -45,7 +45,7 @@
         "jwk"
       ]
     },
-    "org.iso.23220.1": {
+    "org.iata.23220.1": {
       "title": "Base data elements for photoID defined in ISO/IEC 23220-4 table C.1",
       "type": "object",
       "additionalProperties": false,
@@ -203,7 +203,7 @@
         "age_over_18"
       ]
     },
-    "org.iso.23220.photoID.1": {
+    "org.iata.23220.photoID.1": {
       "title": "Additional data elements for photo ID defined in ISO/IEC 23220-4 table C.2",
       "type": "object",
       "additionalProperties": false,
@@ -256,7 +256,7 @@
         }
       }
     },
-    "org.iso.23220.datagroups.1": {
+    "org.iata.23220.datagroups.1": {
       "title": "Data elements containing the data groups defined by ICAO 9303 and referenced in ISO/IEC 23220-4 table C.3",
       "type": "object",
       "additionalProperties": false,
@@ -359,6 +359,6 @@
     "vct",
     "cnf",
     "vct#integrity",
-    "org.iso.23220.1"
+    "org.iata.23220.1"
   ]
 }
