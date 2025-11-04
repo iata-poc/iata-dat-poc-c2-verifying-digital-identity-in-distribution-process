@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.prod.digitalcredentials.iata.org/epassportvc-photoid-sdjwt-schema.v2.json",
-  "title": "ePassport VC schema (SD-JWT) \u2014 photoID namespaces at top-level",
-  "description": "Single JSON Schema for an SD-JWT-based ePassport/photoID credential. The credential payload consists of SD-JWT envelope fields plus top-level namespace properties carrying photoID elements.",
+  "title": "photoID schema (SD-JWT)",
+  "description": "Single JSON Schema for an SD-JWT-based on photoID or ISO 23220-4 credential. The credential payload consists of SD-JWT envelope fields plus top-level namespace properties carrying photoID elements.",
   "type": "object",
   "additionalProperties": false,
   "properties": {
