@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.prod.digitalcredentials.iata.org/epassportvc-photoid-sdjwt-schema.v2.json",
+  "title": "ePassport VC schema (SD-JWT) \u2014 photoID namespaces at top-level",
+  "description": "Single JSON Schema for an SD-JWT-based ePassport/photoID credential. The credential payload consists of SD-JWT envelope fields plus top-level namespace properties carrying photoID elements.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "iss": {
+      "title": "Issuer",
+      "description": "StringOrURI identifying the issuer.",
+      "type": "string"
+    },
+    "iat": {
+      "title": "Issued At",
+      "description": "Issuance Unix timestamp (seconds).",
+      "type": "integer"
+    },
+    "exp": {
+      "title": "Expiration",
+      "description": "Expiration Unix timestamp (seconds).",
+      "type": "integer"
+    },
+    "vct": {
+      "title": "Verifiable Credential Type",
+      "description": "String/URI identifying the credential type.",
+      "type": "string"
+    },
+    "vct#integrity": {
+      "title": "vct#integrity",
+      "description": "A hash computed over the credential type metadata to ensure that the metadata hasn't been altered.",
+      "type": "string"
+    },
+    "cnf": {
+      "title": "Confirmation Method",
+      "description": "Holder proof-of-possession key.",
+      "type": "object",
+      "properties": {
+        "jwk": {
+          "type": "object",
+          "description": "Holder's public key JWK."
+        }
+      },
+      "required": [
+        "jwk"
+      ]
+    },
+    "org.iso.23220.1": {
+      "title": "Base data elements for photoID defined in ISO/IEC 23220-4 table C.1",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "family_name": {
+          "type": "string",
+          "description": "Last name, surname, or primary identifier, of the holder. Presence: M. Encoding: tstr."
+        },
+        "given_name": {
+          "type": "string",
+          "description": "First name(s), other name(s), or secondary identifier, of the holder. Presence: O. Encoding: tstr."
+        },
+        "family_name_viz": {
+          "type": "string",
+          "description": "Family name as defined for VIZ (visual inspection zone) in ICAO 9303. Presence: O. Encoding: tstr."
+        },
+        "given_name_viz": {
+          "type": "string",
+          "description": "Given name as defined for VIZ (visual inspection zone) in ICAO 9303. Presence: O. Encoding: tstr."
+        },
+        "birth_date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Day, month and year on which the holder was born in full-date format (YYYY-MM-DD) as per ISO 8601-1. If parts are unknown, issuing authority picks one exact date. Presence: M. Encoding: full-date."
+        },
+        "approximate_mask": {
+          "type": "string",
+          "pattern": "^[01]{8}$",
+          "description": "8-digit flag (YYYYMMDD order) where 1 indicates masked/unknown parts of birth_date. Not used for age calculations. Presence: O. Encoding: tstr."
+        },
+        "portrait": {
+          "type": "string",
+          "description": "Portrait data encoded as JPEG or JPEG 2000 as specified in ISO/IEC 18013-2:2020. Presence: M. Encoding: bstr. For representation in JSON schema Section 8.2.3 of ISO 23220-2 reference base64-without padding string as specified in RFC 8949:2020, 6.1.",
+          "contentEncoding": "base64"
+        },
+        "enrolment_portrait_image": {
+          "type": "string",
+          "description": "Enrolment portrait image as JPEG or JPEG 2000. Presence: O. Encoding: bstr. To be used as live biometric image for IATA use case. For representation in JSON schema Section 8.2.3 of ISO 23220-2 reference base64-without padding string as specified in RFC 8949:2020, 6.1.",
+          "contentEncoding": "base64"
+        },
+        "issue_date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Date mobile eID document was issued Presence: M. Encoding: full_date."
+        },
+        "expiry_date": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Date mobile eID document expires. Presence: M. Encoding: full_date."
+        },
+        "issuing_authority": {
+          "type": "string",
+          "description": "Name of issuing authority. Presence: M. Encoding: tstr."
+        },
+        "issuing_country": {
+          "type": "string",
+          "maxLength": 3,
+          "pattern": "^[A-Z]{2,3}$",
+          "description": "Country code as alpha 2 and alpha 3 code, defined in ISO 3166-1, which issued the mobile eID document or within which the issuing authority is located. Presence: M. Encoding: tstr."
+        },
+        "age_over_18": {
+          "type": "boolean",
+          "description": "Age of holder is greater than 18 years. Presence: M. Encoding: bool."
+        },
+        "age_in_years": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The age of the holder. Presence: R. Encoding: uint."
+        },
+        "age_over_NN": {
+          "type": "boolean",
+          "description": "Check ISO/IEC 23220-2 Section 6.3.2.2. Age attestation: Nearest true attestation above request. Presence: R. Encoding: bool."
+        },
+        "age_birth_year": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The year when the holder was born. Presence: R. Encoding: uint."
+        },
+        "portrait_capture_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date when portrait was taken. Presence: O. Encoding: tdate."
+        },
+        "birthplace": {
+          "type": "string",
+          "description": "Country and municipality or state/province where the holder was born. Presence: O. Encoding: tstr."
+        },
+        "name_at_birth": {
+          "type": "string",
+          "description": "The name(s) which holder was born. Presence: O. Encoding: tstr."
+        },
+        "resident_address": {
+          "type": "string",
+          "description": "The place where the holder resides and/or may be contacted (street/house number, municipality etc.). Presence: O. Encoding: tstr."
+        },
+        "resident_city": {
+          "type": "string",
+          "description": "The city/municipality (or equivalent) where the holder lives. Presence: O. Encoding: tstr."
+        },
+        "resident_postal_code": {
+          "type": "string",
+          "description": "The postal code of the holder Presence: O. Encoding: tstr."
+        },
+        "resident_country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "The country where the holder lives as a two letter country code (alpha-2 code) defined in ISO 3166-1. Presence: O. Encoding: check ISO 3166-1."
+        },
+        "resident_city_latin1": {
+          "type": "string",
+          "description": "The city/municipality (or equivalent) where the holder lives, Latin 1 characters. Presence: O. Encoding: tstr."
+        },
+        "sex": {
+          "type": "integer",
+          "minimum": 0,
+          "enum": [
+            0,
+            1,
+            2,
+            9
+          ],
+          "description": "Holder's sex using values as defined in ISO/IEC 5218. Presence: O. Encoding: uint."
+        },
+        "nationality": {
+          "type": "string",
+          "maxLength": 3,
+          "pattern": "^[A-Z]{2,3}$",
+          "description": "Nationality of the Holder as two letter country code (alpha-2 code) or three letter code (alpha-3 code) defined in ISO 3166-1. Presence: O. Encoding: tstr."
+        },
+        "document_number": {
+          "type": "string",
+          "description": "The number assigned or calculated by the issuing authority. Presence: O. Encoding: tstr."
+        },
+        "issuing_subdivision": {
+          "type": "string",
+          "description": "Subdivision code as defined in ISO 3166-2, which issued the mobile eID document or within which the issuing authority located. Presence: O. Encoding: tstr."
+        },
+        "family_name_latin1": {
+          "type": "string",
+          "description": "Last name, surname, or primary identifier, of the holder, Latin1 characters. Presence: O. Encoding: tstr."
+        },
+        "given_name_latin1": {
+          "type": "string",
+          "description": "First name(s), other name(s), or secondary identifier, of the holder. Latin1 characters Presence: O. Encoding: tstr."
+        }
+      },
+      "required": [
+        "family_name",
+        "birth_date",
+        "portrait",
+        "issue_date",
+        "expiry_date",
+        "issuing_authority",
+        "issuing_country",
+        "age_over_18"
+      ]
+    },
+    "org.iso.23220.photoID.1": {
+      "title": "Additional data elements for photo ID defined in ISO/IEC 23220-4 table C.2",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "person_id": {
+          "type": "string",
+          "description": "Person identifier of the photo ID holder. Presence: O. Encoding: tstr."
+        },
+        "birth_country": {
+          "type": "string",
+          "maxLength": 2,
+          "pattern": "^[A-Z]{2}$",
+          "description": "The country where the photo ID holder was born, as an Alpha-2 country code as specified in ISO 3166-1. Presence: O. Encoding: tstr."
+        },
+        "birth_state": {
+          "type": "string",
+          "description": "The state, province, district or local area where the photo ID holder was born. Presence: O. Encoding: tstr."
+        },
+        "birth_city": {
+          "type": "string",
+          "description": "The municipality, city, town or village where the photo ID holder was born. Presence: O. Encoding: tstr."
+        },
+        "administrative_number": {
+          "type": "string",
+          "description": "A number assigned by the photo ID holder issuer for audit control or other purposes. Presence: O. Encoding: tstr."
+        },
+        "resident_street": {
+          "type": "string",
+          "description": "The name of the street where the photo ID holder currently resides. Presence: O. Encoding: tstr."
+        },
+        "resident_house_number": {
+          "type": "string",
+          "description": "The house number where the photo ID holder currently resides, including any affix or suffix. Presence: O. Encoding: tstr."
+        },
+        "travel_document_type": {
+          "type": "string",
+          "description": "Identifier of the type of source document (if associated to or derived from a travel document). Shall be present if dg1 data element from table C.3 exists but optional otherwise. Presence: C. Encoding: tstr."
+        },
+        "travel_document_number": {
+          "type": "string",
+          "description": "The number of the travel document to which the photo ID is associated (if associated to or derived from a travel document). Presence: C. Encoding: tstr."
+        },
+        "resident_state": {
+          "type": "string",
+          "description": "The state/province/district where the holder lives. Presence: O. Encoding: tstr."
+        },
+        "travel_document_mrz": {
+          "type": "string",
+          "description": "Machine readable zone as the text printed on the physical document. It shall be present if dg1 data element from table C.3 exists but optional otherwise. Presence: C. Encoding: tstr."
+        }
+      }
+    },
+    "org.iso.23220.datagroups.1": {
+      "title": "Data elements containing the data groups defined by ICAO 9303 and referenced in ISO/IEC 23220-4 table C.3",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Version identifier for the ICAO 9303 data groups. Presence: O. Encoding: tstr."
+        },
+        "dg1": {
+          "type": "string",
+          "description": "Data Group 1: Biographic data (data recorded in MRZ). Presence: C. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg2": {
+          "type": "string",
+          "description": "Data Group 2: Reference portrait (encoded face). Presence: C. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg3": {
+          "type": "string",
+          "description": "Data Group 3: Encoded fingers. Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg4": {
+          "type": "string",
+          "description": "Data Group 4: Encoded eye(s). Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg5": {
+          "type": "string",
+          "description": "Data Group 5: Displayed portrait. Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg6": {
+          "type": "string",
+          "description": "Data Group 6: Reserved for future use. Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg7": {
+          "type": "string",
+          "description": "Data Group 7: Displayed signature or usual mark. Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg8": {
+          "type": "string",
+          "description": "Data Group 8: Data feature(s). Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg9": {
+          "type": "string",
+          "description": "Data Group 9: Structure feature(s). Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg10": {
+          "type": "string",
+          "description": "Data Group 10: Substance feature(s). Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg11": {
+          "type": "string",
+          "description": "Data Group 11: Additional personal detail(s). Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg12": {
+          "type": "string",
+          "description": "Data Group 12: Additional document detail(s). Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg13": {
+          "type": "string",
+          "description": "Data Group 13: Optional detail(s). Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg14": {
+          "type": "string",
+          "description": "Data Group 14: Security options. Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg15": {
+          "type": "string",
+          "description": "Data Group 15: Active authentication public key info. Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "dg16": {
+          "type": "string",
+          "description": "Data Group 16: Person(s) to notify. Presence: O. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        },
+        "sod": {
+          "type": "string",
+          "description": "Security Object Data (SOD). Presence: C. Encoding: bstr. Represented as base64 string (no padding) per RFC 8949 6.1.",
+          "contentEncoding": "base64"
+        }
+      }
+    }
+  },
+  "required": [
+    "iss",
+    "iat",
+    "vct",
+    "cnf",
+    "vct#integrity",
+    "org.iso.23220.1"
+  ]
+}
