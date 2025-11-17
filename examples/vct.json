@@ -1,0 +1,247 @@
+{
+  "name": "Travel Agency Employee Verifiable Credential",
+  "vct": "https://iata.org/.well-known/vct/travel_agency_employee",
+  "description": "A Verifiable Credential for travel agency employees",
+  "display": [
+    {
+      "description": "A Verifiable Credential for travel agency employees",
+      "locale": "en-US",
+      "name": "Travel Agency Employee Credential"
+    }
+  ],
+  "claims": [
+    {
+      "path": [
+        "employee"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Employee Information",
+          "description": "Complete employee information"
+        }
+      ],
+      "mandatory": true
+    },
+    {
+      "path": [
+        "employee",
+        "salutation"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Salutation",
+          "description": "Honorific or title prefix"
+        }
+      ],
+      "mandatory": true,
+      "sd": "allowed"
+    },
+    {
+      "path": [
+        "employee",
+        "givenName"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Given Name",
+          "description": "Employee's first name"
+        }
+      ],
+      "mandatory": true,
+      "sd": "allowed"
+    },
+    {
+      "path": [
+        "employee",
+        "surname"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Surname",
+          "description": "Employee's last name"
+        }
+      ],
+      "mandatory": true,
+      "sd": "allowed"
+    },
+    {
+      "path": [
+        "employee",
+        "phoneNumber"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Phone Number",
+          "description": "Employee's contact phone number"
+        }
+      ],
+      "mandatory": true,
+      "sd": "allowed"
+    },
+    {
+      "path": [
+        "employee",
+        "phoneNumber",
+        "countryCode"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Country Code",
+          "description": "Phone number country code"
+        }
+      ],
+      "mandatory": true
+    },
+    {
+      "path": [
+        "employee",
+        "phoneNumber",
+        "localNumber"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Local Number",
+          "description": "Local phone number"
+        }
+      ],
+      "mandatory": true
+    },
+    {
+      "path": [
+        "employee",
+        "employeeID"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Employee ID",
+          "description": "Unique employee identifier"
+        }
+      ],
+      "mandatory": true,
+      "sd": "not-allowed"
+    },
+    {
+      "path": [
+        "employee",
+        "email"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Email Address",
+          "description": "Employee's email address"
+        }
+      ],
+      "mandatory": true,
+      "sd": "allowed"
+    },
+    {
+      "path": [
+        "employee",
+        "jobTitle"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Job Title",
+          "description": "Employee's position within the agency"
+        }
+      ],
+      "mandatory": true,
+      "sd": "allowed"
+    },
+    {
+      "path": [
+        "employee",
+        "pcc"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "PCC Codes",
+          "description": "Pseudo City Codes associated with the employee"
+        }
+      ],
+      "mandatory": false,
+      "sd": "allowed"
+    },
+    {
+      "path": [
+        "iss"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Issuer",
+          "description": "Credential issuer URI"
+        }
+      ],
+      "mandatory": true,
+      "sd": "not-allowed"
+    },
+    {
+      "path": [
+        "iat"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Issued At",
+          "description": "Credential issuance timestamp"
+        }
+      ],
+      "mandatory": true,
+      "sd": "not-allowed"
+    },
+    {
+      "path": [
+        "exp"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Expiration",
+          "description": "Credential expiration timestamp"
+        }
+      ],
+      "mandatory": false,
+      "sd": "not-allowed"
+    },
+    {
+      "path": [
+        "vct"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Credential Type",
+          "description": "Verifiable Credential Type identifier"
+        }
+      ],
+      "mandatory": true,
+      "sd": "not-allowed"
+    },
+    {
+      "path": [
+        "cnf"
+      ],
+      "display": [
+        {
+          "locale": "en-US",
+          "name": "Confirmation",
+          "description": "Proof-of-possession key binding"
+        }
+      ],
+      "mandatory": true,
+      "sd": "not-allowed"
+    }
+  ]
+}
