@@ -1,7 +1,5 @@
 {
-  "@context": [
-    "https://www.w3.org/ns/did/v1"
-  ],
+  "@context": ["https://www.w3.org/ns/did/v1"],
   "id": "did:web:iata.org:issuer",
   "verificationMethod": [
     {
@@ -16,10 +14,6 @@
       }
     }
   ],
-  "authentication": [
-    "did:web:iata.org:issuer#issuer-key-1"
-  ],
-  "assertionMethod": [
-    "did:web:iata.org:issuer#issuer-key-1"
-  ]
+  "authentication": ["did:web:iata.org:issuer#issuer-key-1"],
+  "assertionMethod": ["did:web:iata.org:issuer#issuer-key-1"]
 }

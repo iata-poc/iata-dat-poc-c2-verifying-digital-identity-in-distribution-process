@@ -11,9 +11,7 @@
   ],
   "claims": [
     {
-      "path": [
-        "employee"
-      ],
+      "path": ["employee"],
       "display": [
         {
           "locale": "en-US",
@@ -24,10 +22,7 @@
       "mandatory": true
     },
     {
-      "path": [
-        "employee",
-        "salutation"
-      ],
+      "path": ["employee", "salutation"],
       "display": [
         {
           "locale": "en-US",
@@ -39,10 +34,7 @@
       "sd": "allowed"
     },
     {
-      "path": [
-        "employee",
-        "givenName"
-      ],
+      "path": ["employee", "givenName"],
       "display": [
         {
           "locale": "en-US",
@@ -54,10 +46,7 @@
       "sd": "allowed"
     },
     {
-      "path": [
-        "employee",
-        "surname"
-      ],
+      "path": ["employee", "surname"],
       "display": [
         {
           "locale": "en-US",
@@ -69,10 +58,7 @@
       "sd": "allowed"
     },
     {
-      "path": [
-        "employee",
-        "phoneNumber"
-      ],
+      "path": ["employee", "phoneNumber"],
       "display": [
         {
           "locale": "en-US",
@@ -84,11 +70,7 @@
       "sd": "allowed"
     },
     {
-      "path": [
-        "employee",
-        "phoneNumber",
-        "countryCode"
-      ],
+      "path": ["employee", "phoneNumber", "countryCode"],
       "display": [
         {
           "locale": "en-US",
@@ -99,11 +81,7 @@
       "mandatory": true
     },
     {
-      "path": [
-        "employee",
-        "phoneNumber",
-        "localNumber"
-      ],
+      "path": ["employee", "phoneNumber", "localNumber"],
       "display": [
         {
           "locale": "en-US",
@@ -114,10 +92,7 @@
       "mandatory": true
     },
     {
-      "path": [
-        "employee",
-        "employeeID"
-      ],
+      "path": ["employee", "employeeID"],
       "display": [
         {
           "locale": "en-US",
@@ -129,10 +104,7 @@
       "sd": "not-allowed"
     },
     {
-      "path": [
-        "employee",
-        "email"
-      ],
+      "path": ["employee", "email"],
       "display": [
         {
           "locale": "en-US",
@@ -144,10 +116,7 @@
       "sd": "allowed"
     },
     {
-      "path": [
-        "employee",
-        "jobTitle"
-      ],
+      "path": ["employee", "jobTitle"],
       "display": [
         {
           "locale": "en-US",
@@ -159,10 +128,7 @@
       "sd": "allowed"
     },
     {
-      "path": [
-        "employee",
-        "pcc"
-      ],
+      "path": ["employee", "pcc"],
       "display": [
         {
           "locale": "en-US",
@@ -174,9 +140,7 @@
       "sd": "allowed"
     },
     {
-      "path": [
-        "iss"
-      ],
+      "path": ["iss"],
       "display": [
         {
           "locale": "en-US",
@@ -188,9 +152,7 @@
       "sd": "not-allowed"
     },
     {
-      "path": [
-        "iat"
-      ],
+      "path": ["iat"],
       "display": [
         {
           "locale": "en-US",
@@ -202,9 +164,7 @@
       "sd": "not-allowed"
     },
     {
-      "path": [
-        "exp"
-      ],
+      "path": ["exp"],
       "display": [
         {
           "locale": "en-US",
@@ -216,9 +176,7 @@
       "sd": "not-allowed"
     },
     {
-      "path": [
-        "vct"
-      ],
+      "path": ["vct"],
       "display": [
         {
           "locale": "en-US",
@@ -230,9 +188,7 @@
       "sd": "not-allowed"
     },
     {
-      "path": [
-        "cnf"
-      ],
+      "path": ["cnf"],
       "display": [
         {
           "locale": "en-US",

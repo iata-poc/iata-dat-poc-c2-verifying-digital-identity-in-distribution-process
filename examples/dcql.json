@@ -10,17 +10,11 @@
       },
       "claims": [
         {
-          "path": [
-            "employee",
-            "salutation"
-          ],
+          "path": ["employee", "salutation"],
           "id": "salutation"
         },
         {
-          "path": [
-            "employee",
-            "givenName"
-          ],
+          "path": ["employee", "givenName"],
           "id": "givenName"
         }
       ]
@@ -28,11 +22,7 @@
   ],
   "credential_sets": [
     {
-      "options": [
-        [
-          "0"
-        ]
-      ],
+      "options": [["0"]],
       "purpose": "To sign in to the travel agency system, we require the following attributes"
     }
   ]

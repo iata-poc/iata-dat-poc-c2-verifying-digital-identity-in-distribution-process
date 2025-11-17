@@ -10,11 +10,7 @@
     "employeeID": "EMP-2024-SF-00847",
     "email": "sarah.johnson@globaltravel.com",
     "jobTitle": "Senior Travel Consultant",
-    "pcc": [
-      "SFO1A2",
-      "LAX3B4",
-      "NYC5C6"
-    ]
+    "pcc": ["SFO1A2", "LAX3B4", "NYC5C6"]
   },
   "iss": "https://credentials.iata.org/issuer",
   "iat": 1731859200,
