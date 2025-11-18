@@ -1,0 +1,19 @@
+{
+  "@context": ["https://www.w3.org/ns/did/v1"],
+  "id": "did:web:iata.org:issuer",
+  "verificationMethod": [
+    {
+      "id": "did:web:iata.org:issuer#issuer-key-1",
+      "type": "JsonWebKey2020",
+      "controller": "did:web:iata.org:issuer",
+      "publicKeyJwk": {
+        "kty": "EC",
+        "crv": "P-256",
+        "x": "Mwv9YmIppZC87iX3bFW5Xd5FsCkf8G56pTw7HKo9QZE",
+        "y": "xYguDF6vAN33el4Uig4kvdAhl6MxI1CopDOdLGOW75c"
+      }
+    }
+  ],
+  "authentication": ["did:web:iata.org:issuer#issuer-key-1"],
+  "assertionMethod": ["did:web:iata.org:issuer#issuer-key-1"]
+}

@@ -1,0 +1,29 @@
+{
+  "credentials": [
+    {
+      "id": "0",
+      "format": "dc+sd-jwt",
+      "meta": {
+        "vct_values": [
+          "https://iata.org/.well-known/vct/travel_agency_employee"
+        ]
+      },
+      "claims": [
+        {
+          "path": ["employee", "salutation"],
+          "id": "salutation"
+        },
+        {
+          "path": ["employee", "givenName"],
+          "id": "givenName"
+        }
+      ]
+    }
+  ],
+  "credential_sets": [
+    {
+      "options": [["0"]],
+      "purpose": "To sign in to the travel agency system, we require the following attributes"
+    }
+  ]
+}
