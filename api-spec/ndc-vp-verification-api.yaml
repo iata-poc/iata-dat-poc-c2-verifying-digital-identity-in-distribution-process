@@ -7,7 +7,7 @@ info:
     name: API Support
     email: lukas@hopae.com
 servers:
-  - url: https://api.iata.hopae.app/v1
+  - url: https://iata-poc.dev.hopae.app
     description: Production server(TBD)
 tags:
   - name: Verification
@@ -31,7 +31,7 @@ paths:
                 summary: SD-JWT VC format
                 value:
                   vp: "eyJhbGciOiJFUzI1NiIsInR5cCI6InZjK3NkLWp3dCJ9...~WyJPMTFySVRjRTdHcXExYW9oRkd0aDh3IiwgImdpdmVuX25hbWUiLCAiSm9obiJd~"
-                  vp_format: "sd-jwt-vc"
+                  iata_number: "12345678"
               w3cVcdm:
                 summary: W3C VCDM (JSON-LD) format
                 value:
@@ -50,12 +50,11 @@ paths:
                         },
                       ]
                     proof: {}
-                  vp_format: "vcdm-jsonld"
               mdoc:
                 summary: mDOC format (ISO 18013-5)
                 value:
                   vp: "oRGhhSUBlbGVtZW50SWRlbnRpZmllcngYb3JnLmlzby4xODAxMy41LjEubURMaWRvY3VtZW50c..."
-                  vp_format: "mdoc"
+                  iata_number: "87654321"
       responses:
         "200":
           description: VP verification successful
@@ -68,7 +67,6 @@ paths:
                   summary: SD-JWT VC verification success
                   value:
                     verified: true
-                    format: "sd-jwt-vc"
                     issuer:
                       id: "did:example:gov123"
                       name: "Government Identity Authority"
@@ -79,13 +77,13 @@ paths:
                       nationality: "US"
                       passport_number: "123456789"
                     metadata:
+                      vp_type: "sd-jwt-vc"
                       issuanceDate: "2023-01-01T00:00:00Z"
                       expirationDate: "2033-01-01T00:00:00Z"
                 w3cVcdmSuccess:
                   summary: W3C VCDM verification success
                   value:
                     verified: true
-                    format: "vcdm-jsonld"
                     issuer:
                       id: "did:example:edu456"
                       name: "University Credentials Department"
@@ -95,13 +93,13 @@ paths:
                       graduation_date: "2023-06-15"
                       student_id: "ST2019001234"
                     metadata:
+                      vp_type: "vcdm-jsonld"
                       issuanceDate: "2023-06-20T00:00:00Z"
                       expirationDate: "2073-06-20T00:00:00Z"
                 mdocSuccess:
                   summary: mDOC verification success
                   value:
                     verified: true
-                    format: "mdoc"
                     issuer:
                       id: "did:mdl:gov:us:dmv"
                       name: "Department of Motor Vehicles"
@@ -114,6 +112,7 @@ paths:
                       issue_date: "2020-01-15"
                       expiry_date: "2030-01-15"
                     metadata:
+                      vp_type: "mdoc"
                       docType: "org.iso.18013.5.1.mDL"
                       validityInfo:
                         signed: "2023-01-15T10:00:00Z"
@@ -121,7 +120,7 @@ paths:
                         validUntil: "2028-01-15T10:00:00Z"
                       nameSpaces: ["org.iso.18013.5.1"]
         "400":
-          description: Bad Request - Invalid VP format or missing required fields
+          description: Bad Request - Invalid VP format, missing required fields, or IATA number mismatch
           content:
             application/json:
               schema:
@@ -135,14 +134,22 @@ paths:
                     details:
                       supportedFormats:
                         ["SD-JWT VC", "W3C VCDM (JSON-LD)", "mDOC"]
-                formatMismatch:
-                  summary: VP format mismatch
+                malformedVP:
+                  summary: Malformed VP
                   value:
-                    error: "FORMAT_MISMATCH"
-                    message: "The specified vp_format does not match the actual VP format"
+                    error: "MALFORMED_VP"
+                    message: "The VP structure is invalid or cannot be parsed"
                     details:
-                      specifiedFormat: "sd-jwt-vc"
-                      detectedFormat: "mdoc"
+                      reason: "Unable to decode VP"
+                iataMismatch:
+                  summary: IATA number mismatch
+                  value:
+                    error: "IATA_NUMBER_MISMATCH"
+                    message: "The provided IATA number does not match the credential"
+                    details:
+                      provided: "12345678"
+                      expected: "87654321"
+                      reason: "IATA number in the request does not match the IATA number in the verifiable credential"
         "401":
           description: Unauthorized - VP verification failed
           content:
@@ -194,7 +201,6 @@ components:
       type: object
       required:
         - vp
-        - vp_format
       properties:
         vp:
           oneOf:
@@ -202,29 +208,23 @@ components:
               description: SD-JWT VC or mDOC (base64 encoded)
             - type: object
               description: W3C VCDM JSON-LD object
-          description: The Verifiable Presentation to verify
-        vp_format:
+          description: The Verifiable Presentation to verify (format will be auto-detected)
+        iata_number:
           type: string
-          description: Format of the VP being verified
-          enum:
-            - sd-jwt-vc
-            - vcdm-jsonld
-            - mdoc
-          example: "sd-jwt-vc"
+          description: Optional IATA number for verification. If provided, it will be validated against the IATA number in the credential
+          pattern: "^[0-9]{8}$"
+          example: "12345678"
     VerifyVPResponse:
       type: object
       required:
         - verified
         - issuer
         - claims
+        - metadata
       properties:
         verified:
           type: boolean
           description: Whether the VP was successfully verified
-        format:
-          type: string
-          description: Format of the verified VP
-          example: "sd-jwt-vc"
         issuer:
           type: object
           description: Information about the credential issuer
@@ -248,7 +248,17 @@ components:
         metadata:
           type: object
           description: Format-specific metadata
+          required:
+            - vp_type
           properties:
+            vp_type:
+              type: string
+              description: Type of the verified VP
+              enum:
+                - sd-jwt-vc
+                - vcdm-jsonld
+                - mdoc
+              example: "sd-jwt-vc"
             issuanceDate:
               type: string
               format: date-time
