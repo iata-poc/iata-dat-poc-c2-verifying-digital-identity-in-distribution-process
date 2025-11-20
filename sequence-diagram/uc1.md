@@ -10,7 +10,7 @@ autonumber
     participant VP as VP verify API
     participant IATA as IATA trust service
 
-    rect
+    rect rgb(200, 230, 255)
         Note left of OW: Set up Shopping System
         OW->>S: upload Travel Agency Credential(VC)
         S->>+S: create key pair (save key in storage)
@@ -18,7 +18,7 @@ autonumber
         OW->>OW: set up the public key in DID docs
     end
 
-    rect
+    rect rgb(200, 230, 255)
         Note right of Air: an order process
         loop create order
 	        S->>+S: Create transaction ID(tx ID)
