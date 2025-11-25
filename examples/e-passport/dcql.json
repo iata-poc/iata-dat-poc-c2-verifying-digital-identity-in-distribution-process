@@ -1,0 +1,122 @@
+{
+  "credentials": [
+    {
+      "id": "mdoc_photoId",
+      "format": "mso_mdoc",
+      "meta": {
+        "doctype_value": "org.iso.23220.photoID.1"
+      },
+      "claims": [
+        {
+          "id": "issue_date",
+          "path": ["org.iso.23220.1", "issue_date"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "expiry_date",
+          "path": ["org.iso.23220.1", "expiry_date"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "document_number",
+          "path": ["org.iso.23220.1", "document_number"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "given_name",
+          "path": ["org.iso.23220.1", "given_name"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "family_name",
+          "path": ["org.iso.23220.1", "family_name"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "birth_date",
+          "path": ["org.iso.23220.1", "birth_date"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "portrait",
+          "path": ["org.iso.23220.1", "portrait"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "issuing_country",
+          "path": ["org.iso.23220.1", "issuing_country"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "nationality",
+          "path": ["org.iso.23220.1", "nationality"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "sex",
+          "path": ["org.iso.23220.1", "sex"],
+          "intent_to_retain": false
+        }
+      ]
+    },
+    {
+      "id": "sdjwt_photoId",
+      "format": "dc+sd-jwt",
+      "meta": {
+        "vct_values": []
+      },
+      "claims": [
+        {
+          "id": "portrait",
+          "path": ["electronicPassport", "portrait"]
+        },
+        {
+          "id": "birthDate",
+          "path": ["electronicPassport", "dataGroup1", "birthDate"]
+        },
+        {
+          "id": "docTypeCode",
+          "path": ["electronicPassport", "dataGroup1", "docTypeCode"]
+        },
+        {
+          "id": "expiryDate",
+          "path": ["electronicPassport", "dataGroup1", "expiryDate"]
+        },
+        {
+          "id": "sexCode",
+          "path": ["electronicPassport", "dataGroup1", "sexCode"]
+        },
+        {
+          "id": "familyName",
+          "path": ["electronicPassport", "dataGroup1", "familyName"]
+        },
+        {
+          "id": "givenName",
+          "path": ["electronicPassport", "dataGroup1", "givenName"]
+        },
+        {
+          "id": "issuerCode",
+          "path": ["electronicPassport", "dataGroup1", "issuerCode"]
+        },
+        {
+          "id": "natlCode",
+          "path": ["electronicPassport", "dataGroup1", "natlCode"]
+        },
+        {
+          "id": "passportNumberIdentifier",
+          "path": [
+            "electronicPassport",
+            "dataGroup1",
+            "passportNumberIdentifier"
+          ]
+        }
+      ]
+    }
+  ],
+  "credential_sets": [
+    {
+      "options": [["mdoc_photoId"], ["sdjwt_photoId"]],
+      "purpose": "Verify passenger identity using e-passport"
+    }
+  ]
+}
