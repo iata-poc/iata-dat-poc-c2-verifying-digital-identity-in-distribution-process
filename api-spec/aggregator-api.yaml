@@ -1,0 +1,845 @@
+openapi: 3.0.4
+info:
+  title: IATA Agency Desktop API
+  version: 1.0.0
+  description: >
+    REST API for an agency desktop integrating Digital Identity (VC/VP) login
+    and airline NDC 24.1 shopping & ordering.
+
+    Flow overview (PoC):
+    - Frontend starts a verification by calling POST /api/public/verifications.
+      This returns a verificationId (`id`) and a deep link / URL to be encoded in a QR.
+    - Wallet + verifier run the digital identity flow. When done, the verifier calls
+      POST /api/private/sessions to update the verification session state to VERIFIED
+      and provide the necessary information for the backend to reconstruct/validate
+      a Verifiable Presentation (VP).
+    - Frontend polls GET /api/public/verifications/{id} until `state` is VERIFIED.
+    - Once VERIFIED, the frontend sends that `id` on every subsequent NDC-related call
+      in the X-Verification-Id header.
+    - The backend keeps an internal session store keyed by verificationId and, for
+      VERIFIED sessions, stores:
+        - Agent/agency identity attributes (e.g. DID, IATA number, roles)
+        - The VP (or a VP token) derived from the verifier callback.
+    - For every NDC 24.1 request (e.g. IATA_AirShoppingRQ, OrderCreate),
+      the backend:
+        - Builds the appropriate 24.1 XML (FlightRequest, PaxList, etc.)
+        - Injects the agent/agency VP into
+          DistributionChain/DistributionChainLink/VerifiablePresentation
+          for the Seller link.
+        - Sends the NDC request to the airline.
+
+servers:
+  - url: https://api.example.com
+
+tags:
+  - name: digital-identity-validation
+    description: Public endpoints to initiate and query digital identity verifications.
+  - name: sessions
+    description: Private/internal endpoints used by verifiers to update session state and convey VP.
+  - name: ndc
+    description: NDC-related business endpoints (shopping and ordering).
+  - name: profile
+    description: Agent profile endpoints.
+
+paths:
+  /api/public/verifications:
+    post:
+      tags:
+        - digital-identity-validation
+      summary: Initiate QR-based verification
+      description: |
+        Creates a verification request and returns an identifier and deep link
+        for the wallet to open (e.g. QR code content).
+
+        The frontend calls this, then displays the returned `url` as a QR. The
+        `id` will later be used:
+        - to poll state via GET /api/public/verifications/{id}, and
+        - as a PoC auth token in X-Verification-Id for /me, /shopping/air, /orders, etc.,
+          once the session has been marked as VERIFIED by POST /api/private/sessions.
+      operationId: createVerification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerificationCreateRequest'
+      responses:
+        '201':
+          description: Verification created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationCreateResponse'
+        '400':
+          description: Invalid flow or request
+
+  /api/public/verifications/{id}:
+    get:
+      tags:
+        - digital-identity-validation
+      summary: Get verification state
+      description: |
+        Returns verification state for a given verification id.
+
+        The frontend polls this endpoint until `state` becomes `VERIFIED`
+        (or a terminal state such as `FAILED` or `EXPIRED`).
+
+        A state of `VERIFIED` means:
+        - The verifier callback has been received via POST /api/private/sessions.
+        - The backend has marked the internal session as VERIFIED and, for this PoC,
+          can reconstruct or has stored the agent's Verifiable Presentation (VP)
+          and identity attributes for use in subsequent NDC 24.1 calls.
+      operationId: getVerificationState
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Verification identifier (verificationId)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Verification state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationStatusResponse'
+        '404':
+          description: Verification not found
+
+  /api/private/sessions:
+    post:
+      tags:
+        - sessions
+      summary: Update session status from verifier callback
+      description: |
+        Internal endpoint called as a webhook/callback by verifiers to update
+        session state after verification is completed.
+
+        Two main patterns (from the PoC implementation):
+        - Neoke: `verificationId` is provided as a query parameter.
+        - SICPA: `event` object is sent in the request body (with `verificationId`
+          and `state`), and the raw HTTP payload contains the VP/VC material
+          needed by the backend to construct a VP token (via exportVPToken(session, req)).
+
+        Backend responsibilities:
+        - Locate the internal session by verificationId.
+        - Verify that the verification is complete (`state` indicates done).
+        - Construct and/or validate the Verifiable Presentation (VP) for the
+          agent/agency from the verifier payload.
+        - Optionally perform trust-store or issuer checks against the VP.
+        - Mark the internal session as VERIFIED, store:
+          - identity attributes (DID, agency id, IATA number, roles, etc.);
+          - a VP token or equivalent representation.
+
+        After this, calls using X-Verification-Id = verificationId will be
+        treated as authenticated for PoC purposes, and the stored VP will be
+        injected into NDC 24.1 DistributionChain/DistributionChainLink/VerifiablePresentation.
+      operationId: updateSessionFromVerifier
+      parameters:
+        - in: query
+          name: verificationId
+          required: false
+          description: Verification identifier (Neoke redirect flow)
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionCallbackRequest'
+      responses:
+        '200':
+          description: Session updated or verification still in progress
+        '400':
+          description: Invalid reference or payload
+        '404':
+          description: Session not found
+
+  /me:
+    get:
+      tags:
+        - profile
+      summary: Get current agent profile
+      description: |
+        Returns the profile of the authenticated agent, derived from the
+        verified digital identity (VC/VP) associated with the verificationId.
+
+        Authentication is done using the X-Verification-Id header, which must be
+        a verificationId whose session is in VERIFIED state.
+
+        The backend resolves:
+        - internal agent id and organization;
+        - DID and other identity claims from the VP;
+        - any stored VC identifiers used internally.
+      operationId: getCurrentAgent
+      security:
+        - verificationIdAuth: []
+      responses:
+        '200':
+          description: Agent profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentProfile'
+        '401':
+          description: Not authenticated or session not verified
+
+  /shopping/air:
+    post:
+      tags:
+        - ndc
+      summary: Search for air offers (NDC 24.1 AirShopping)
+      description: |
+        Performs an air shopping search across multiple airline NDC 24.1 APIs
+        using IATA_AirShoppingRQ.
+
+        Authentication:
+        - Requires X-Verification-Id header pointing to a VERIFIED verificationId.
+        - The backend uses this to retrieve the agent's identity and VP.
+
+        Backend behavior:
+        - Build one or more IATA_AirShoppingRQ 24.1 messages with:
+          - Request/FlightRequest/FlightRequestOriginDestinationsCriteria/OriginDestCriteria
+            based on origin, destination, departureDate, returnDate.
+          - Request/PaxList with PTCs expanded from passengers[].
+          - FlightRelatedCriteria/ConnectionCriteria from maxStops / nonStopOnly.
+          - ShoppingCriteria/CarrierCriteria from preferredAirlines.
+          - ResponseParameters/CurParameter from currency.
+        - For each message, populate DistributionChain/DistributionChainLink with
+          a Seller link representing the agency/agent, and place the VP in:
+          - DistributionChain/DistributionChainLink/VerifiablePresentation.
+        - Call one or more airline NDC 24.1 endpoints and normalize responses
+          into the AirSearchResponse schema.
+
+        Under the hood this becomes multiple IATA_AirShoppingRQ calls with the
+        same digital identity context supplied via DistributionChain.
+      operationId: airShopping
+      security:
+        - verificationIdAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AirSearchRequest'
+      responses:
+        '200':
+          description: Aggregated offers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AirSearchResponse'
+        '400':
+          description: Invalid search criteria
+        '401':
+          description: Not authenticated or verification not completed
+
+  /orders:
+    post:
+      tags:
+        - ndc
+      summary: Create an order (NDC 24.1 OrderCreate)
+      description: |
+        Creates an order for a previously returned offer.
+
+        Authentication:
+        - Requires X-Verification-Id header pointing to a VERIFIED verificationId.
+
+        Backend workflow (simplified):
+        1. Resolve the stored search context and underlying NDC offer references
+           (OfferID, ShoppingResponseID, journey/segment IDs) from searchId + offerId.
+        2. Optionally re-price via an IATA_OfferPriceRQ 24.1 call to validate price.
+        3. If successful, build an appropriate OrderCreate message (e.g.
+           IATA_OrderReshopRQ + Order) according to the airline's 24.1 profile
+           and send it to the airline.
+        4. Inject digital identity in the same way as for shopping:
+           - DistributionChain/DistributionChainLink/VerifiablePresentation
+             includes the agent/agency VP for the Seller link.
+        5. Persist mapping between internal orderId and airline NDC OrderID.
+        6. Return a normalized Order representation to the frontend.
+
+        The VP is not part of the JSON request body; it is taken from the
+        verified session identified by X-Verification-Id.
+      operationId: createOrder
+      security:
+        - verificationIdAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+      responses:
+        '201':
+          description: Order successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreateResponse'
+        '400':
+          description: Invalid request (offer expired, pricing mismatch, etc.)
+        '401':
+          description: Not authenticated or verification not completed
+        '409':
+          description: Offer could not be booked (no inventory, fare change, etc.)
+
+  /orders/{orderId}:
+    get:
+      tags:
+        - ndc
+      summary: Retrieve an order
+      description: |
+        Returns an existing order and its current status.
+
+        Authentication:
+        - Requires X-Verification-Id header pointing to a VERIFIED verificationId.
+
+        Backend behavior:
+        - Look up internal order by orderId (and optionally ensure it belongs to
+          the same agent/agency as the verification session).
+        - Optionally call an NDC 24.1 OrderView / OrderRetrieve message to
+          refresh state from the airline, again injecting VP into
+          DistributionChain/DistributionChainLink/VerifiablePresentation.
+        - Return the normalized Order object to the frontend.
+      operationId: getOrder
+      security:
+        - verificationIdAuth: []
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '401':
+          description: Not authenticated or verification not completed
+        '404':
+          description: Order not found
+
+components:
+  securitySchemes:
+    verificationIdAuth:
+      type: apiKey
+      in: header
+      name: X-Verification-Id
+      description: >
+        PoC authentication token.
+
+        Use the `id` returned from POST /api/public/verifications once its
+        state is VERIFIED (checked via GET /api/public/verifications/{id}).
+        The backend maintains an internal session store keyed by this id and
+        expects a VERIFIED session with a stored VP and agent identity.
+
+  schemas:
+    # ---------- DIGITAL IDENTITY / VERIFICATIONS ----------
+
+    VerificationCreateRequest:
+      type: object
+      required:
+        - flow
+      properties:
+        flow:
+          type: string
+          description: >
+            Identifier of the verification flow to use (e.g. WIFI, BOARD_WIFI,
+            LOUNGE, AGENCY_DESKTOP). Must match one of the configured flows
+            known to the backend and verifier.
+          example: AGENCY_DESKTOP
+
+    VerificationCreateResponse:
+      type: object
+      required:
+        - id
+        - url
+        - state
+      properties:
+        id:
+          type: string
+          description: >
+            Verification identifier (verificationId). This value is also used
+            later in the X-Verification-Id header after the session is verified.
+        url:
+          type: string
+          format: uri
+          description: >
+            Deep link / URL to be encoded in a QR code and opened by the wallet.
+        state:
+          type: string
+          description: Initial state of the verification.
+          example: REQUESTED
+
+    VerificationStatusResponse:
+      type: object
+      required:
+        - id
+        - state
+      properties:
+        id:
+          type: string
+        state:
+          type: string
+          description: >
+            State of the verification. Typical values (from PoC): REQUESTED,
+            VERIFIED, EXPIRED, FAILED.
+
+            VERIFIED means the backend has processed the verifier callback,
+            validated the VP, and marked the internal session as usable for
+            NDC 24.1 calls (with VP available for DistributionChain).
+          example: VERIFIED
+
+    SessionCallbackRequest:
+      type: object
+      description: >
+        Generic callback payload used by verifiers to update session state.
+
+        For SICPA-style flows:
+        - Body contains an `event` object with `verificationId` and `state`.
+        - The raw HTTP payload also holds VP/VC information (e.g. in headers
+          or nested objects), which the backend uses (via an internal
+          exportVPToken(session, req) function) to construct a Verifiable
+          Presentation token associated with this verificationId.
+
+        For Neoke-style flows:
+        - `verificationId` is provided as a query parameter, and the body may
+          be empty or contain provider-specific fields.
+      properties:
+        event:
+          type: object
+          properties:
+            verificationId:
+              type: string
+            state:
+              type: string
+              description: >
+                State reported by the verifier (e.g. VERIFICATION_DONE).
+          required:
+            - verificationId
+            - state
+
+    # ---------- AGENT PROFILE ----------
+
+    AgentProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Internal agent identifier.
+        did:
+          type: string
+          description: Agent DID from VC/VP.
+        name:
+          type: string
+        email:
+          type: string
+        agency:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            iataNumber:
+              type: string
+              description: Agency IATA number used in NDC DistributionChain / Seller context.
+        roles:
+          type: array
+          items:
+            type: string
+        vcIds:
+          type: array
+          items:
+            type: string
+          description: Internal identifiers of stored VCs (if applicable).
+        vpTokenRef:
+          type: string
+          description: >
+            Optional internal reference or hash pointing to the stored VP token
+            used in DistributionChain/DistributionChainLink/VerifiablePresentation.
+
+    # ---------- COMMON / NDC BUSINESS SCHEMAS ----------
+
+    Money:
+      type: object
+      required: [currency, amount]
+      properties:
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+        amount:
+          type: number
+          format: decimal
+
+    AirSearchRequest:
+      type: object
+      required:
+        - origin
+        - destination
+        - departureDate
+        - passengers
+      properties:
+        origin:
+          type: string
+          description: >
+            IATA airport or city code for the origin of the first leg
+            (maps to OriginDepCriteria/IATA_LocationCode of the first
+            OriginDestCriteria in IATA_AirShoppingRQ 24.1).
+        destination:
+          type: string
+          description: >
+            IATA airport or city code for the destination of the first leg
+            (maps to DestArrivalCriteria/IATA_LocationCode).
+        departureDate:
+          type: string
+          format: date
+          description: >
+            Outbound departure date (YYYY-MM-DD).
+            Mapped to OriginDepCriteria/Date for the first OriginDestCriteria.
+        returnDate:
+          type: string
+          format: date
+          nullable: true
+          description: >
+            Optional return date (YYYY-MM-DD). If present, a second
+            OriginDestCriteria is created with origin/destination swapped
+            and this date as OriginDepCriteria/Date.
+        cabin:
+          type: string
+          enum: [ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST]
+          description: >
+            Preferred cabin. Mapped to CabinType/CabinTypeCode in
+            OriginDestCriteria (using PADIS cabin codes) with PrefLevel
+            set (e.g. Required).
+        passengers:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/SearchPassenger'
+          description: >
+            Passenger composition used to create PaxList/Pax entries in
+            IATA_AirShoppingRQ 24.1 (PTC and PaxID).
+        preferredAirlines:
+          type: array
+          items:
+            type: string
+            description: 2-letter IATA airline code.
+          description: >
+            Optional list of airlines to include or prioritize. Mapped to
+            ShoppingCriteria/CarrierCriteria/Carrier/AirlineDesigCode.
+        maxStops:
+          type: integer
+          minimum: 0
+          description: >
+            Maximum number of connections per direction. Used to set
+            FlightRelatedCriteria/ConnectionCriteria/MaximumConnectionQty,
+            referenced by OriginDestCriteria/ConnectionCriteriaRefID.
+        nonStopOnly:
+          type: boolean
+          description: >
+            Convenience flag for non-stop-only search.
+            If true, backend will treat this as maxStops = 0 in
+            ConnectionCriteria.
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          description: >
+            Preferred pricing/display currency (3-letter code). Mapped to
+            ResponseParameters/CurParameter/CurCode.
+
+    SearchPassenger:
+      type: object
+      required:
+        - type
+        - count
+      properties:
+        type:
+          type: string
+          description: Passenger type code.
+          enum: [ADT, CHD, INF]
+        count:
+          type: integer
+          minimum: 1
+          description: >
+            Number of passengers of this type. Backend expands this into
+            multiple Pax entries (PaxList/Pax) with PTC = type.
+
+    AirSearchResponse:
+      type: object
+      required:
+        - searchId
+        - offers
+      properties:
+        searchId:
+          type: string
+          description: >
+            Identifier of this search session, used to correlate subsequent
+            order creation with underlying NDC offer references.
+        offers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Offer'
+
+    Offer:
+      type: object
+      required:
+        - id
+        - airlineCode
+        - totalPrice
+        - segments
+      properties:
+        id:
+          type: string
+          description: Internal offer identifier used in /orders.
+        airlineCode:
+          type: string
+          description: 2-letter IATA airline code.
+        ndcProvider:
+          type: string
+          description: Identifier of the NDC provider profile / version.
+        totalPrice:
+          $ref: '#/components/schemas/Money'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+        fareBrand:
+          type: string
+        fareFamily:
+          type: string
+        bookingClass:
+          type: string
+        refundable:
+          type: boolean
+        changeable:
+          type: boolean
+        baggageAllowance:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        ndcRefs:
+          type: object
+          description: >
+            References required for subsequent NDC calls (OfferPrice, OrderCreate),
+            e.g. OfferID, ShoppingResponseID, PaxJourney/Segment IDs.
+          properties:
+            airlineOfferId:
+              type: string
+            shoppingResponseId:
+              type: string
+            other:
+              type: object
+              additionalProperties: true
+
+    Segment:
+      type: object
+      required:
+        - from
+        - to
+        - departureDateTime
+        - arrivalDateTime
+        - marketingCarrier
+        - flightNumber
+      properties:
+        from:
+          type: string
+          description: Origin airport code.
+        to:
+          type: string
+          description: Destination airport code.
+        departureDateTime:
+          type: string
+          format: date-time
+        arrivalDateTime:
+          type: string
+          format: date-time
+        marketingCarrier:
+          type: string
+        operatingCarrier:
+          type: string
+        flightNumber:
+          type: string
+        cabin:
+          type: string
+        bookingClass:
+          type: string
+
+    OrderCreateRequest:
+      type: object
+      required:
+        - offerId
+        - searchId
+        - passengers
+      properties:
+        offerId:
+          type: string
+          description: Offer identifier returned from /shopping/air.
+        searchId:
+          type: string
+          description: Search context identifier from /shopping/air.
+        passengers:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderPassenger'
+          description: >
+            Concrete passenger details (names, documents, etc.) that will map
+            to Pax elements in the NDC 24.1 order message.
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+        payments:
+          type: array
+          description: Simplified payment info (or reference to a tokenized payment).
+          items:
+            $ref: '#/components/schemas/Payment'
+        remarks:
+          type: string
+        clientReferences:
+          type: object
+          additionalProperties: true
+
+    OrderPassenger:
+      type: object
+      required:
+        - id
+        - type
+        - firstName
+        - lastName
+        - dateOfBirth
+      properties:
+        id:
+          type: string
+          description: Passenger reference (e.g. P1, P2).
+        type:
+          type: string
+          enum: [ADT, CHD, INF]
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [M, F, X]
+        nationality:
+          type: string
+          minLength: 2
+          maxLength: 2
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/TravelDocument'
+
+    TravelDocument:
+      type: object
+      required:
+        - type
+        - number
+        - issuingCountry
+        - expiryDate
+      properties:
+        type:
+          type: string
+          enum: [PASSPORT, ID_CARD]
+        number:
+          type: string
+        issuingCountry:
+          type: string
+        expiryDate:
+          type: string
+          format: date
+
+    Contact:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [PRIMARY, EMERGENCY, BILLING]
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+
+    Payment:
+      type: object
+      required:
+        - method
+      properties:
+        method:
+          type: string
+          enum: [CARD, UATP, CASH, INVOICE, TOKEN]
+        amount:
+          $ref: '#/components/schemas/Money'
+        cardToken:
+          type: string
+          description: Tokenized card reference if using TOKEN.
+        cardLast4:
+          type: string
+        cardScheme:
+          type: string
+
+    OrderCreateResponse:
+      type: object
+      required:
+        - order
+      properties:
+        order:
+          $ref: '#/components/schemas/Order'
+        warnings:
+          type: array
+          items:
+            type: string
+
+    Order:
+      type: object
+      required:
+        - id
+        - airlineCode
+        - status
+        - totalPrice
+      properties:
+        id:
+          type: string
+          description: Internal order identifier.
+        airlineCode:
+          type: string
+        ndcOrderId:
+          type: string
+          description: Airline NDC Order identifier.
+        status:
+          type: string
+          enum: [PENDING_PAYMENT, CONFIRMED, CANCELLED, FAILED]
+        totalPrice:
+          $ref: '#/components/schemas/Money'
+        createdAt:
+          type: string
+          format: date-time
+        tickets:
+          type: array
+          items:
+            type: string
+        passengers:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderPassenger'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+        rawNdcOrderView:
+          type: string
+          description: Optional raw NDC 24.1 OrderView XML for troubleshooting.
