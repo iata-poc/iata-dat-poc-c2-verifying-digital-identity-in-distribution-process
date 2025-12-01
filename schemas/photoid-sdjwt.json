@@ -71,12 +71,7 @@
           "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
           "description": "Day, month and year on which the holder was born in full-date format (YYYY-MM-DD) as per ISO 8601-1. If parts are unknown, issuing authority picks one exact date. Presence: M. Encoding: full-date."
         },
-        "approximate_mask": {
-          "type": "string",
-          "pattern": "^[01]{8}$",
-          "description": "8-digit flag (YYYYMMDD order) where 1 indicates masked/unknown parts of birth_date. Not used for age calculations. Presence: O. Encoding: tstr."
-        },
-        "portrait": {
+          "portrait": {
           "type": "string",
           "description": "Portrait data encoded as JPEG or JPEG 2000 as specified in ISO/IEC 18013-2:2020. Presence: M. Encoding: bstr. For representation in JSON schema Section 8.2.3 of ISO 23220-2 reference base64-without padding string as specified in RFC 8949:2020, 6.1.",
           "contentEncoding": "base64"
