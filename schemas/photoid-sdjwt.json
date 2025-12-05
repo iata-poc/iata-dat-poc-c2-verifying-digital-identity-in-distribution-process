@@ -198,7 +198,7 @@
         "age_over_18"
       ]
     },
-    "org.iata.23220.photoID.1": {
+    "org.iata.23220.photoid.1": {
       "title": "Additional data elements for photo ID defined in ISO/IEC 23220-4 table C.2",
       "type": "object",
       "additionalProperties": false,
