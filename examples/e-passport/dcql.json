@@ -8,21 +8,6 @@
       },
       "claims": [
         {
-          "id": "issue_date",
-          "path": ["org.iso.23220.1", "issue_date"],
-          "intent_to_retain": false
-        },
-        {
-          "id": "expiry_date",
-          "path": ["org.iso.23220.1", "expiry_date"],
-          "intent_to_retain": false
-        },
-        {
-          "id": "document_number",
-          "path": ["org.iso.23220.1", "document_number"],
-          "intent_to_retain": false
-        },
-        {
           "id": "given_name",
           "path": ["org.iso.23220.1", "given_name"],
           "intent_to_retain": false
@@ -38,13 +23,8 @@
           "intent_to_retain": false
         },
         {
-          "id": "portrait",
-          "path": ["org.iso.23220.1", "portrait"],
-          "intent_to_retain": false
-        },
-        {
-          "id": "issuing_country",
-          "path": ["org.iso.23220.1", "issuing_country"],
+          "id": "sex",
+          "path": ["org.iso.23220.1", "sex"],
           "intent_to_retain": false
         },
         {
@@ -53,8 +33,18 @@
           "intent_to_retain": false
         },
         {
-          "id": "sex",
-          "path": ["org.iso.23220.1", "sex"],
+          "id": "document_number",
+          "path": ["org.iso.23220.1", "document_number"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "expiry_date",
+          "path": ["org.iso.23220.1", "expiry_date"],
+          "intent_to_retain": false
+        },
+        {
+          "id": "issuing_country",
+          "path": ["org.iso.23220.1", "issuing_country"],
           "intent_to_retain": false
         }
       ]
@@ -67,36 +57,20 @@
       },
       "claims": [
         {
-          "id": "portrait",
-          "path": ["electronicPassport", "portrait"]
-        },
-        {
-          "id": "birthDate",
-          "path": ["electronicPassport", "dataGroup1", "birthDate"]
-        },
-        {
-          "id": "docTypeCode",
-          "path": ["electronicPassport", "dataGroup1", "docTypeCode"]
-        },
-        {
-          "id": "expiryDate",
-          "path": ["electronicPassport", "dataGroup1", "expiryDate"]
-        },
-        {
-          "id": "sexCode",
-          "path": ["electronicPassport", "dataGroup1", "sexCode"]
+          "id": "givenName",
+          "path": ["electronicPassport", "dataGroup1", "givenName"]
         },
         {
           "id": "familyName",
           "path": ["electronicPassport", "dataGroup1", "familyName"]
         },
         {
-          "id": "givenName",
-          "path": ["electronicPassport", "dataGroup1", "givenName"]
+          "id": "birthDate",
+          "path": ["electronicPassport", "dataGroup1", "birthDate"]
         },
         {
-          "id": "issuerCode",
-          "path": ["electronicPassport", "dataGroup1", "issuerCode"]
+          "id": "sexCode",
+          "path": ["electronicPassport", "dataGroup1", "sexCode"]
         },
         {
           "id": "natlCode",
@@ -109,6 +83,14 @@
             "dataGroup1",
             "passportNumberIdentifier"
           ]
+        },
+        {
+          "id": "expiryDate",
+          "path": ["electronicPassport", "dataGroup1", "expiryDate"]
+        },
+        {
+          "id": "issuerCode",
+          "path": ["electronicPassport", "dataGroup1", "issuerCode"]
         }
       ]
     }
