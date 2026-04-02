@@ -14,7 +14,35 @@ The module consists of three main components:
 
 ## Call Flow
 
-![Flow Chart](/art/flow_chart.png)
+```mermaid
+ sequenceDiagram
+      participant S as HoPae Server (Verifier)
+      participant C as Android Client (Verifier App)                                                                                                                                             
+      participant CM as Android Credential Manager (System API)
+      participant W as Wallet (Credential Provider)                                                                                                                                            
+
+      Note over S, C: 1. Initialize Verification Request
+      C->>S: POST /openid4vp/sessions (expected_origins)
+      S-->>C: Return OpenID4VP request body (Nonce, field definitions, JWKS, sessionId)
+
+      Note over C, CM: 2. Invoke System API
+      C->>CM: GetCredentialRequest(requestJson)
+
+      Note over CM, W: 3. User Authorization
+      CM->>W: Launch digital credential provider
+      W->>W: Biometric confirmation / credential selection
+      W-->>CM: Return encrypted signed response
+
+      Note over CM, C: 4. Return Result
+      CM-->>C: Return DigitalCredential response
+
+      Note over C, S: 5. Final Verification
+      C->>S: POST /openid4vp/verifications/{sessionId} (encrypted data)
+      S->>S: Decrypt, verify signature & match Nonce
+      S-->>C: Return verification result with credential claims (verified, format, claims)
+```
+
+
 
 ```
 Caller (Activity / ViewModel)
