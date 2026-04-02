@@ -16,7 +16,7 @@ The module consists of three main components:
 
 ```mermaid
  sequenceDiagram
-      participant S as HoPae Server (Verifier)
+      participant S as Hopae Server (Verifier)
       participant C as Android Client (Verifier App)                                                                                                                                             
       participant CM as Android Credential Manager (System API)
       participant W as Wallet (Credential Provider)                                                                                                                                            
