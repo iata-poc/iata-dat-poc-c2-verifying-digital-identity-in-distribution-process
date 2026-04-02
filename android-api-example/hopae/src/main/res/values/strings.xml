@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">hopae</string>
+    <string name="request_successful">Request was successful. credential received from wallet.</string>
+    <string name="unexpected_credential_type">Unexpected type of credential received.</string>
+    <string name="user_cancelled_activity">User Cancelled the activity</string>
+    <string name="user_cancelled_request">User cancelled the credential request.</string>
+    <string name="retry_prompt">Something went wrong, but you can retry</string>
+    <string name="request_interrupted">Credential request interrupted. Please retry.</string>
+    <string name="no_credential_on_device">No credential was available on the device</string>
+    <string name="no_credential_available">No credential available on device.</string>
+    <string name="unexpected_error">Unexpected error during credential request: %s</string>
+    <string name="wallet_interaction_exception">Exception during wallet interaction: %s</string>
+    <string name="parse_server_response_error">Error parsing server response.</string>
+    <string name="request_to_server_failed">Request to server failed: %s</string>
+    <string name="parse_server_validation_error">Error parsing server validation response.</string>
+    <string name="validation_request_failed">Validation request failed: %s</string>
+    <string name="request_exception" formatted="false">Request Exception to %s: %s</string>
+    <string name="server_request_url">https://iata-poc.dev.hopae.app/openid4vp/sessions?type=epassport</string>
+    <string name="server_verify_url">https://iata-poc.dev.hopae.app/openid4vp/verifications/%s</string>
+</resources>
