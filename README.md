@@ -12,7 +12,6 @@ This PoC is separated into two distinct sections:
 - [Use Cases](#use-cases)
 - [Architecture & Standards](#architecture--standards)
 - [Participating Organizations](#participating-organizations)
-- [Documentation & Source Code](#documentation--source-code)
 
 
 ## Problem Statement
