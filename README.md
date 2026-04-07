@@ -67,7 +67,45 @@ Digitization of a physical ePassport during the booking flow. A traveler present
 ---
 
 ## Participating Organizations
-This PoC was successfully demonstrated at the IATA WDS Symposium (Singapore, 2026) through the collaborative efforts of the cycle 2 Data and Technology PoC members. The technical implementation was divided across the use cases as follows:
+
+**Airlines**
+
+<table>
+  <tr>
+    <td align="center" width="160"><img src="img/aircanada.png" height="45"></td>
+    <td align="center" width="160"><img src="img/ba.png" height="45"></td>
+  </tr>
+  <tr><td colspan="2" height="16"></td></tr>
+  <tr>
+    <td align="center" width="160"><img src="img/qatar.png" height="45"></td>
+    <td align="center" width="160"><img src="img/tk-airlines.png" height="45"></td>
+  </tr>
+  <tr><td colspan="2" height="16"></td></tr>
+</table>
+
+**Technology Partners and other organizations**
+<table>
+  <tr>
+    <td align="center" width="160"><img src="img/arc.jpg" height="45"></td>
+    <td align="center" width="160"><img src="img/dreamix.png" height="45"></td>
+  </tr>
+  <tr><td colspan="2" height="16"></td></tr>
+  <tr>
+    <td align="center" width="160"><img src="img/google_wallet.png" height="45"></td>
+    <td align="center" width="160"><img src="img/hopae.png" height="45"></td>
+  </tr>
+  <tr><td colspan="2" height="16"></td></tr>
+  <tr>
+    <td align="center" width="160"><img src="img/infosys.png" height="45"></td>
+    <td align="center" width="160"><img src="img/neoke.png" height="45"></td>
+  </tr>
+  <tr><td colspan="2" height="16"></td></tr>
+  <tr>
+    <td align="center" width="160"><img src="img/trip.png" height="45"></td>
+  </tr>
+</table>
+
+
 
 | Use Case | Role / Component | Participating Organizations |
 | :--- | :--- | :--- |
