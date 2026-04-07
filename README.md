@@ -53,7 +53,8 @@ Digitization of a physical ePassport during the booking flow. A traveler present
 ## Architecture & Standards
 For a detailed breakdown of system components and process flows, see the [High-Level Architecture](architecture/high-level-architecture.md) document.
 
-Sequence diagrams per use case: [UC1—Agency Booking System](/sequence-diagram/uc1.md) · [UC2—Travel Agent Desktop](/sequence-diagram/uc2.md) · [UC3—Customer Verification](/sequence-diagram/uc3.md)
+Sequence diagrams per use case: [UC1—Agency Booking System](/sequence-diagram/uc1.md) · [UC2—Travel Agent Desktop](/sequence-diagram/uc2.md) · [UC3—Customer Verification](/sequence-diagram/uc3.md) . [UC3-OpenID4VP & DC API flow](/sequence-diagram/openid4vp-dcapi-uc3.md)
+
 | Use Case | Category | Standard | Purpose |
 |---|---|---|---|
 | UC1 | Data Model | W3C VCDM 2.0 | Credential data format to represent organizational identity for agencies. |
