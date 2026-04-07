@@ -120,6 +120,3 @@ Sequence diagrams per use case: [UC1—Agency Booking System](/sequence-diagram/
 | **UC3** | Customer Digital Wallet | Google Wallet |
 | **All UCs** | Identity Verification & Issuance Services | hopae |
 
-## Documentation & Source Code
-
-- Architecture Guidelines: [`/docs/architecture/high-level-architecture.md`](/docs/architecture/high-level-architecture.md)
