@@ -4,7 +4,7 @@
 This document details the high-level architecture, system components, and process flows for integrating Verifiable Digital Identity into the airline NDC distribution ecosystem across three distinct use cases.
 
 > Detailed sequence diagrams for these flows can be found in the respective files:
-> [UC1 — Agency Booking System](/sequence-diagram/uc1.md) · [UC2 — Travel Agent Desktop](/sequence-diagram/uc2.md) · [UC3 — Customer Verification](/sequence-diagram/uc3.md)
+> [UC1—Agency Booking System](/sequence-diagram/uc1.md) · [UC2—Travel Agent Desktop](/sequence-diagram/uc2.md) · [UC3—Customer Verification](/sequence-diagram/uc3.md) · [UC3-OpenID4VP & DC API flow](/sequence-diagram/openid4vp-dcapi-uc3.md)
 
 
 
