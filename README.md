@@ -82,5 +82,3 @@ This PoC was successfully demonstrated at the IATA WDS Symposium (Singapore, 202
 ## Documentation & Source Code
 
 - Architecture Guidelines: [`/docs/architecture/high-level-architecture.md`](/docs/architecture/high-level-architecture.md)
-- Run the Demo Environment: [`/docs/use-cases/uc1-agency-identity.md`](/docs/use-cases/uc1-agency-identity.md)
-- Digital Wallet Integration Guide: [`/src/wallet-integration/README.md`](/src/wallet-integration/README.md)
