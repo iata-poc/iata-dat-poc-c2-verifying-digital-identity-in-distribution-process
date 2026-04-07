@@ -10,8 +10,6 @@ These schemas ensure that Verifiable Credentials  adhere to global standards, en
 
 This JSON schema defines the structure for a Travel Agency Employee Verifiable Credential. It contains the data elements necessary to  verify an individual agent's identity and their employment status at a specific travel agency. 
 
----
-
 ## 2. Digital Passport / Photo ID — `iso-photoid.md`
 
 - **Used in:** Use Case 3 — Customer Verification / B2C Checkout
