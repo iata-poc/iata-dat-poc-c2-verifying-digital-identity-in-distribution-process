@@ -1,0 +1,863 @@
+openapi: 3.0.3
+info:
+  title: IATA Digital Identity B2C PoC — NDC Aggregator API
+  description: |
+    REST API for the NDC Aggregator Proof-of-Concept.
+    Integrates IATA Digital Identity (Verifiable Credentials via OpenID4VP)
+    with multi-airline NDC capabilities (AirShopping, OfferPrice, OrderCreate).
+
+    **Authentication** is handled via two mutually exclusive header patterns:
+    - `X-Agency-Token` — session token from agency login (UC1), triggers server-side VP generation
+    - `X-Verification-Id` — session ID from QR-based verification (UC2)
+  version: 1.0.0
+  contact:
+    name: Dreamix
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development
+
+tags:
+  - name: Public
+    description: Unauthenticated endpoints (health check, QR verification)
+  - name: Auth
+    description: Agency login and VC management (UC1)
+  - name: Credentials
+    description: Credential revocation status and toggling
+  - name: NDC Shopping
+    description: Multi-airline flight search and offer repricing
+  - name: NDC Orders
+    description: Order creation and retrieval
+  - name: Agent
+    description: Current agent profile
+
+paths:
+  # ── Public ──────────────────────────────────────────────
+  /public/ping:
+    get:
+      tags: [Public]
+      summary: Health check
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: pong
+
+  /public/verifications:
+    post:
+      tags: [Public]
+      summary: Start a QR verification session (UC2)
+      description: |
+        Creates a new OpenID4VP verification session via Hopae.
+        Returns a QR content URI for the agent's wallet to scan.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [flow]
+              properties:
+                flow:
+                  type: string
+                  enum: [agency_desktop]
+                  description: Flow type identifier
+      responses:
+        '201':
+          description: Verification session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationCreated'
+        '400':
+          description: Invalid flow type
+
+  /public/verifications/{id}:
+    get:
+      tags: [Public]
+      summary: Poll verification session status
+      description: |
+        Polls the Hopae verifier for the current session status.
+        Returns REQUESTED while pending, VERIFIED on success,
+        FAILED if credential is revoked, or ERROR on failure.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Current session state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationStatus'
+        '404':
+          description: Verification session not found
+
+  /public/configuration:
+    get:
+      tags: [Public]
+      summary: Get available verification flows
+      responses:
+        '200':
+          description: Flow configuration
+          content:
+            application/json:
+              schema:
+                type: object
+
+  # ── Auth ────────────────────────────────────────────────
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Agency login
+      description: Validates agency credentials and returns a session token for UC1.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    format: uuid
+                    description: Agency session token (use as X-Agency-Token header)
+        '401':
+          description: Wrong credentials
+
+  /auth/vc:
+    post:
+      tags: [Auth]
+      summary: Upload agency Verifiable Credential
+      description: Stores a W3C VCDM Verifiable Credential for server-side VP generation (UC1).
+      security:
+        - AgencyToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifiableCredential'
+      responses:
+        '200':
+          description: VC stored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  vc:
+                    $ref: '#/components/schemas/VCInfo'
+        '400':
+          description: Invalid VC format
+        '401':
+          description: Invalid or expired agency token
+
+    get:
+      tags: [Auth]
+      summary: Get stored VC status
+      security:
+        - AgencyToken: []
+      responses:
+        '200':
+          description: VC info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hasVC:
+                    type: boolean
+                  vc:
+                    $ref: '#/components/schemas/VCInfo'
+        '401':
+          description: Invalid or expired agency token
+
+    delete:
+      tags: [Auth]
+      summary: Delete stored agency VC
+      security:
+        - AgencyToken: []
+      responses:
+        '200':
+          description: Deletion result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Invalid or expired agency token
+
+  # ── Credentials ─────────────────────────────────────────
+  /credentials/status:
+    get:
+      tags: [Credentials]
+      summary: Check credential revocation status
+      description: Queries Hopae StatusList 2021 to check whether a credential index is revoked.
+      parameters:
+        - name: listId
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: index
+          in: query
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: Revocation status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  revoked:
+                    type: boolean
+
+  /credentials/toggle:
+    put:
+      tags: [Credentials]
+      summary: Toggle credential revocation status
+      description: Toggles credential revocation on Hopae StatusList (demo utility).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                listId:
+                  type: integer
+                  default: 1
+                index:
+                  type: integer
+                  default: 5
+      responses:
+        '200':
+          description: Toggle result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+
+  # ── NDC Shopping ────────────────────────────────────────
+  /shopping/air:
+    post:
+      tags: [NDC Shopping]
+      summary: Search for flights (multi-airline parallel)
+      description: |
+        Sends AirShopping requests to all enabled airlines in parallel.
+        VP token is embedded in each NDC XML request.
+        Results are parsed, converted to USD, filtered, grouped by flight,
+        and the best flight per airline is returned.
+      security:
+        - AgencyToken: []
+        - VerificationId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          description: Missing required fields
+        '401':
+          description: Authentication failed
+
+  /shopping/offers/{offerId}/reprice:
+    post:
+      tags: [NDC Shopping]
+      summary: Reprice a specific offer
+      description: |
+        Sends an OfferPrice request to the airline that owns the offer.
+        Compares the repriced amount with the original search price (both in USD).
+        In demo mode, returns a mock price-verified response.
+      security:
+        - AgencyToken: []
+        - VerificationId: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [searchId]
+              properties:
+                searchId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Reprice result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepriceResponse'
+        '400':
+          description: Missing searchId
+        '401':
+          description: Authentication failed
+        '404':
+          description: Offer or search context not found
+
+  # ── NDC Orders ──────────────────────────────────────────
+  /orders:
+    post:
+      tags: [NDC Orders]
+      summary: Create an order (book)
+      description: |
+        Sends an OrderCreate request to the airline for the selected offer.
+        Stores the order in the in-memory order store.
+        In demo mode, returns a mock confirmed order.
+      security:
+        - AgencyToken: []
+        - VerificationId: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          description: Missing required fields
+        '401':
+          description: Authentication failed
+
+    get:
+      tags: [NDC Orders]
+      summary: List orders for current session
+      security:
+        - VerificationId: []
+      responses:
+        '200':
+          description: Orders list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderSummary'
+        '401':
+          description: Authentication failed
+
+  /orders/{orderId}:
+    get:
+      tags: [NDC Orders]
+      summary: Get order details
+      security:
+        - AgencyToken: []
+        - VerificationId: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '404':
+          description: Order not found
+
+  # ── Agent ───────────────────────────────────────────────
+  /me:
+    get:
+      tags: [Agent]
+      summary: Get current agent profile
+      description: Returns the agent profile extracted from the verification session.
+      security:
+        - VerificationId: []
+      responses:
+        '200':
+          description: Agent profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentProfile'
+        '404':
+          description: Agent profile not found in session
+
+components:
+  securitySchemes:
+    AgencyToken:
+      type: apiKey
+      in: header
+      name: X-Agency-Token
+      description: Session token from POST /auth/login (UC1)
+    VerificationId:
+      type: apiKey
+      in: header
+      name: X-Verification-Id
+      description: Session ID from QR verification (UC2)
+
+  schemas:
+    SearchRequest:
+      type: object
+      required: [origin, destination, departureDate, passengers]
+      properties:
+        origin:
+          type: string
+          example: IST
+          description: IATA airport code
+        destination:
+          type: string
+          example: LHR
+        departureDate:
+          type: string
+          format: date
+          example: '2025-09-15'
+        returnDate:
+          type: string
+          format: date
+          nullable: true
+          description: Omit for one-way
+        passengers:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [ADT, CHD, INF]
+              count:
+                type: integer
+                minimum: 1
+          example:
+            - type: ADT
+              count: 1
+
+    SearchResponse:
+      type: object
+      properties:
+        searchId:
+          type: string
+          format: uuid
+        tripType:
+          type: string
+          enum: [ONE_WAY, ROUND_TRIP]
+        flights:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightGroup'
+        message:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          properties:
+            searchId:
+              type: string
+            tripType:
+              type: string
+            totalFlights:
+              type: integer
+            totalOffers:
+              type: integer
+            totalBeforeFilter:
+              type: integer
+            airlines:
+              type: array
+              items:
+                type: string
+
+    FlightGroup:
+      type: object
+      properties:
+        flightGroupKey:
+          type: string
+        airlineCode:
+          type: string
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+        fareOptions:
+          type: array
+          items:
+            type: object
+            properties:
+              offerId:
+                type: string
+              price:
+                $ref: '#/components/schemas/Price'
+              fareDetails:
+                $ref: '#/components/schemas/FareDetails'
+
+    Segment:
+      type: object
+      properties:
+        flightNumber:
+          type: string
+          example: TK1979
+        departureAirport:
+          type: string
+          example: IST
+        departureTime:
+          type: string
+          format: date-time
+        departureStation:
+          type: string
+        departureTerminal:
+          type: string
+        arrivalAirport:
+          type: string
+          example: LHR
+        arrivalTime:
+          type: string
+          format: date-time
+        arrivalStation:
+          type: string
+        arrivalTerminal:
+          type: string
+        duration:
+          type: string
+          example: PT4H10M
+        carrierCode:
+          type: string
+        operatingCarrier:
+          type: string
+        aircraft:
+          type: string
+        aircraftName:
+          type: string
+        journeyDirection:
+          type: string
+          enum: [outbound, inbound]
+
+    Price:
+      type: object
+      properties:
+        total:
+          type: number
+          example: 245.50
+        currency:
+          type: string
+          example: USD
+        base:
+          type: number
+          nullable: true
+        tax:
+          type: number
+          nullable: true
+
+    FareDetails:
+      type: object
+      properties:
+        cabinCode:
+          type: string
+          example: Y
+        cabinName:
+          type: string
+          example: Economy
+        fareBrandName:
+          type: string
+          example: Eco Fly
+        baggageAllowance:
+          type: object
+          nullable: true
+        restrictions:
+          type: object
+          nullable: true
+
+    RepriceResponse:
+      type: object
+      properties:
+        offerId:
+          type: string
+        airlineCode:
+          type: string
+        originalPrice:
+          $ref: '#/components/schemas/Price'
+        repricedPrice:
+          $ref: '#/components/schemas/Price'
+        priceChanged:
+          type: boolean
+        priceDifference:
+          type: number
+        priceIncreased:
+          type: boolean
+        priceDecreased:
+          type: boolean
+        priceBreakdown:
+          type: object
+          nullable: true
+        validity:
+          type: object
+          properties:
+            timeLimit:
+              type: string
+              format: date-time
+        fareDetails:
+          $ref: '#/components/schemas/FareDetails'
+        fareRestrictions:
+          type: object
+          nullable: true
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+
+    OrderRequest:
+      type: object
+      required: [searchId, offerId, passengers]
+      properties:
+        searchId:
+          type: string
+          format: uuid
+        offerId:
+          type: string
+        passengers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PassengerInput'
+        payment:
+          type: object
+          nullable: true
+          description: Payment details (PoC — not validated)
+
+    PassengerInput:
+      type: object
+      required: [firstName, lastName, type]
+      properties:
+        type:
+          type: string
+          enum: [ADT, CHD, INF]
+        firstName:
+          type: string
+        lastName:
+          type: string
+        gender:
+          type: string
+          enum: [M, F]
+        dateOfBirth:
+          type: string
+          format: date
+        nationality:
+          type: string
+        documentType:
+          type: string
+        documentNumber:
+          type: string
+        documentExpiry:
+          type: string
+          format: date
+        documentIssuingCountry:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+
+    OrderResponse:
+      type: object
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        ndcOrderId:
+          type: string
+        bookingReference:
+          type: string
+          example: AB12CD
+        airlineCode:
+          type: string
+        status:
+          type: string
+          enum: [CONFIRMED, PENDING_PAYMENT, CANCELLED, FAILED]
+        totalPrice:
+          $ref: '#/components/schemas/Price'
+        passengers:
+          type: array
+          items:
+            type: object
+            properties:
+              passengerId:
+                type: string
+              type:
+                type: string
+              firstName:
+                type: string
+              lastName:
+                type: string
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+        tickets:
+          type: array
+          nullable: true
+          items:
+            type: object
+
+    OrderSummary:
+      type: object
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        ndcOrderId:
+          type: string
+        bookingReference:
+          type: string
+        airlineCode:
+          type: string
+        status:
+          type: string
+        totalPrice:
+          $ref: '#/components/schemas/Price'
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+        createdAt:
+          type: string
+          format: date-time
+
+    VerificationCreated:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Verification session ID (use as X-Verification-Id after verified)
+        qrContent:
+          type: string
+          description: OpenID4VP request URI for wallet QR scan
+        state:
+          type: string
+          enum: [REQUESTED]
+
+    VerificationStatus:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          enum: [REQUESTED, VERIFIED, FAILED, ERROR]
+        reason:
+          type: string
+          nullable: true
+          description: Present when state is FAILED or ERROR
+
+    VerifiableCredential:
+      type: object
+      description: W3C VCDM Verifiable Credential
+      required: [type, credentialSubject]
+      properties:
+        type:
+          type: array
+          items:
+            type: string
+        credentialSubject:
+          type: object
+          required: [iata_number]
+          properties:
+            iata_number:
+              type: string
+
+    VCInfo:
+      type: object
+      nullable: true
+      properties:
+        hasVC:
+          type: boolean
+        iataNumber:
+          type: string
+        uploadedAt:
+          type: string
+          format: date-time
+
+    AgentProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Verification session ID
+        did:
+          type: string
+          description: Agent DID
+        name:
+          type: string
+        email:
+          type: string
+        agency:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            iataNumber:
+              type: string
+        roles:
+          type: array
+          items:
+            type: string

@@ -1,0 +1,17 @@
+{
+  "name": "ndc-aggregator",
+  "private": true,
+  "scripts": {
+    "start": "cd server && cross-env NODE_ENV=production node index.js",
+    "start:dev": "cd server && nodemon index.js",
+    "client:dev": "cd client && npm run start",
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "build": "cd client && npm run build",
+    "dev": "concurrently \"npm run start:dev\" \"npm run client:dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "cross-env": "^7.0.3",
+    "nodemon": "^3.1.4"
+  }
+}
