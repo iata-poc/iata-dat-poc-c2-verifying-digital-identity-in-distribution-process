@@ -1,0 +1,22 @@
+/public/**
+.env
+
+**/logs
+*.log
+
+**/node_modules
+**/dist
+**/build
+
+**/db
+
+**/.env*
+!**/.env.template
+**/users.json
+**/*.tar
+
+# NDC debug request/response XML files
+debug-logs/
+
+# Stored agency VC data
+data/
