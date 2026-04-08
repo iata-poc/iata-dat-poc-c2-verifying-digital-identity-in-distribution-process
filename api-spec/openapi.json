@@ -1,0 +1,1426 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/openid4vp/sessions": {
+      "post": {
+        "operationId": "Openid4vpController_start",
+        "parameters": [
+          {
+            "name": "type",
+            "required": true,
+            "in": "query",
+            "description": "Type of Credential",
+            "schema": {
+              "default": "epassport",
+              "example": "epassport",
+              "enum": [
+                "epassport",
+                "booking_order"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartDcApiSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OpenID4VP"
+        ]
+      }
+    },
+    "/openid4vp/verifications/{sessionId}": {
+      "post": {
+        "operationId": "Openid4vpController_verify",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": true,
+            "in": "query",
+            "description": "Type of Credential",
+            "schema": {
+              "default": "epassport",
+              "example": "epassport",
+              "enum": [
+                "epassport",
+                "booking_order"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyDcApiSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "OpenID4VP"
+        ]
+      }
+    },
+    "/openid4vp/qr/start": {
+      "post": {
+        "operationId": "Openid4vpController_qrStart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "QR code start",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrStartResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OpenID4VP"
+        ]
+      }
+    },
+    "/openid4vp/qr/status/{sessionId}": {
+      "get": {
+        "operationId": "Openid4vpController_qrStatus",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "QR code status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QrStatusResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "OpenID4VP"
+        ]
+      }
+    },
+    "/verification/vp": {
+      "post": {
+        "operationId": "VerifyController_verifyVp",
+        "summary": "Verify a Verifiable Presentation",
+        "description": "Verifies the authenticity and validity of a Verifiable Presentation (SD-JWT VC, W3C VCDM, or mDOC) and returns parsed credential data",
+        "parameters": [
+          {
+            "name": "airline",
+            "required": false,
+            "in": "query",
+            "description": "Airline identifier for verification",
+            "examples": {
+              "BA": {
+                "summary": "British Airways",
+                "value": "BA"
+              },
+              "AF": {
+                "summary": "Default",
+                "value": "default"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "VP verification request. Format is automatically detected (SD-JWT VC, W3C VCDM JSON-LD, or mDOC).",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyVPRequest"
+              },
+              "examples": {
+                "sdJwtVc": {
+                  "summary": "SD-JWT VC format",
+                  "value": {
+                    "vp": "eyJ0eXAiOiJkYytzZC1qd3QiLCJraWQiOiIja2V5LTEiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJkaWQ6d2ViOmlhdGEtcG9jLmRldi5ob3BhZS5hcHAiLCJ2Y3QiOiJodHRwczovL2V1ZGktdmVyaWZpZXIuZGV2LmhvcGFlLmFwcC9pc3N1ZXIvY3JlZGVudGlhbHMvaWF0YS1lbXBsb3llZS12YyIsInNhbHV0YXRpb24iOiJNci4iLCJnaXZlbk5hbWUiOiJKb2huIiwic3VybmFtZSI6IlNtaXRoIiwiZW1wbG95ZWVJRCI6IkVNUC0yMDI0LTAwMTQyIiwic3RhdHVzIjp7InN0YXR1c19saXN0Ijp7ImlkeCI6NSwidXJpIjoiaHR0cHM6Ly9pYXRhLXBvYy5kZXYuaG9wYWUuYXBwL3N0YXR1cy1saXN0LzEifX0sImlhdCI6MTc3MjAwODc5MiwiZXhwIjoxODM1MDgwNzkyLCJjbmYiOnsiandrIjp7Imt0eSI6IkVDIiwia2lkIjoiOGE0MmZjNGMtODA4OC00ZTU5LWExYmUtZTFkNDU0ZGYyNGY1IiwiY3J2IjoiUC0yNTYiLCJ4IjoiVEFvWlpGUG8xTG5uVmFVU1NPcTlGaDNOU0x0cTEwLVJ4YmFlck55NVA0SSIsInkiOiJzaW8xc3RFalZCMTY3SFFtRDc1Wm9rdkFENWtBZGU5TnZOYUhTWXl1ZE9JIn19LCJfc2QiOlsiMlJxTkRPQkhuWGtSc0hQb1ZubXFuSkFzOGVjZWJJbjYtUGdEQVYxV2p1RSIsIkFEdzZJakF5LVpKUlNTM1pkTHZOS3dfNVZaSlJxUmN3Y3BZNTAwRVBqaTQiLCJfeFBNd2xlMm43UTVCQVRiRzdYY2JMSWhDYkdVS0VscEJ6QnU5NlNYbks0Iiwia1FkS3ZVZWVLandDSUREQTJzQUlTNmdMMU4tU1BvQ2VXNlVHekxtUE10RSJdLCJfc2RfYWxnIjoic2hhLTI1NiJ9.KsDYZWkxnoKJEiGDZa-vW8MkoRCAlxfHXAGaljbPaw8tivlWtu9fDmHL717mo6KetrjG2mm1_-1SG9Szm_bsSw~eyJ0eXAiOiJrYitqd3QiLCJhbGciOiJFUzI1NiJ9.eyJpYXQiOjE3NzIwMzIwOTUsIm5vbmNlIjoiYjhkZWY5NTMtZTMzYi00MTIyLThiNTUtYjM3MTU4YTFhMzBmIiwiYXVkIjoieDUwOV9oYXNoOlJSNmRuZkotdUNTVHVFYURxSWRMdDZCYW9FNFpwZTUya01vMFJNeFFrT2siLCJzZF9oYXNoIjoiTjJKcHpyQzA1VWtvc1hOZ1pGcHV2cjJwQzlvRnVkdm52dWJjak11NWQxNCJ9.5G-0TvjUYgQzKU_XLKPibc723KxVKc7If7Y8i-QvIxVrL_86HhxNcVmcgIf2FJawVRba0hZhPOzovK7BUUYqoQ",
+                    "iata_number": "00002015"
+                  }
+                },
+                "sdJwtVcRevoked": {
+                  "summary": "SD-JWT VC format (Revoked)",
+                  "value": {
+                    "vp": "eyJ0eXAiOiJkYytzZC1qd3QiLCJraWQiOiIja2V5LTEiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJkaWQ6d2ViOmlhdGEtcG9jLmRldi5ob3BhZS5hcHAiLCJ2Y3QiOiJodHRwczovL2V1ZGktdmVyaWZpZXIuZGV2LmhvcGFlLmFwcC9pc3N1ZXIvY3JlZGVudGlhbHMvaWF0YS1lbXBsb3llZS12YyIsInNhbHV0YXRpb24iOiJNcy4iLCJnaXZlbk5hbWUiOiJKYW5lIiwic3VybmFtZSI6IkRvZSIsImVtcGxveWVlSUQiOiJFTVAtMjAyNC0wMDE0MiIsInN0YXR1cyI6eyJzdGF0dXNfbGlzdCI6eyJpZHgiOjE1LCJ1cmkiOiJodHRwczovL2lhdGEtcG9jLmRldi5ob3BhZS5hcHAvc3RhdHVzLWxpc3QvMSJ9fSwiaWF0IjoxNzcyMDMyNzQzLCJleHAiOjE4MzUxMDQ3NDMsImNuZiI6eyJqd2siOnsia3R5IjoiRUMiLCJraWQiOiI3MjRmMTU4ZC00NjRlLTQzZTktOWEyZC01MDEyYTdhODQ3ZmQiLCJjcnYiOiJQLTI1NiIsIngiOiJyYURvY3F2bTlOV1JrdWs3cFFPNVBjVjV3TlpMUU5LX0JOVmU4bmMtWUpVIiwieSI6IklrRkNNVG02QUNYMHBSUkZhOExHRFFmSGpVbEhFZGlGSDVGV0t6cmRjeHcifX0sIl9zZCI6WyIydmJJTm14SGhDcXo0cTZQZEZlY1ltc1RqNlpsMjZISlZ3QmlKZXEzR1VzIiwiQWJhNmpGbXdhYjBWd0dacEU0MjEwSWxDM1JPNlV3UTBITGlSaU1GUHdUOCIsIlBPWHZLS2Z4TVRPR0xlamR1MmdBVm9Wb3RtWG1Ud2V2RzRLUUR4MGdEUkEiLCJUeDA1ZWZfWDg0RGpEYlNsWmV0elM5SnVDMDVkS0hQbDlfV2F1dGp6aWU4Il0sIl9zZF9hbGciOiJzaGEtMjU2In0.PW_KqDnYVNeJe0pfwpog0XBYIyqaJnI2yh5guYIkWfJ61wSPr5DGXL-KvIjEm9LOHs2vZu6-BpS-KwPlPCRkXA~eyJ0eXAiOiJrYitqd3QiLCJhbGciOiJFUzI1NiJ9.eyJpYXQiOjE3NzIwMzI4MTMsIm5vbmNlIjoiMDJiZWFkYzItYzUzMC00MTIzLWI4NzgtYzkzOTJmOGQyYWY3IiwiYXVkIjoieDUwOV9oYXNoOlJSNmRuZkotdUNTVHVFYURxSWRMdDZCYW9FNFpwZTUya01vMFJNeFFrT2siLCJzZF9oYXNoIjoiM0cxeTJSdTZCTktmeWxhX0dXMEtkRE1iX3FKNklla1J4Ui1admZ3Sm96VSJ9.1A5jezVSpSSRzjs3JktxjRrCBeLpaq-KYd3ThBWpIFiJ5sRA1z8YPvHaY4sy2L77H0-lilLsOjY9I1lFyvUOpQ",
+                    "iata_number": "00002015"
+                  }
+                },
+                "w3cVcdm": {
+                  "summary": "W3C VCDM (JSON-LD) format in base64url",
+                  "value": {
+                    "vp": "eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSIsImh0dHBzOi8vdzNpZC5vcmcvc2VjdXJpdHkvc3VpdGVzL2p3cy0yMDIwL3YxIl0sInR5cGUiOlsiVmVyaWZpYWJsZVByZXNlbnRhdGlvbiJdLCJob2xkZXIiOiJkaWQ6a2V5OnpEbmFlaWo1eEQ4S1dLRnlHYjlrcmpSdDRjcWd1OXU2ZVYxOXc5VkJZUTZOeTIyWFEiLCJ2ZXJpZmlhYmxlQ3JlZGVudGlhbCI6W3siQGNvbnRleHQiOlsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCJodHRwczovL3czaWQub3JnL3NlY3VyaXR5L3N1aXRlcy9qd3MtMjAyMC92MSJdLCJpZCI6InVybjp1dWlkOmNjZjA3ZDQ0LTRhZTctNDQzOC1iY2JlLTdhZjgxM2YzNDQzYSIsInR5cGUiOlsiVmVyaWZpYWJsZUNyZWRlbnRpYWwiLCJJQVRBVHJhdmVsQWdlbmN5Q3JlZGVudGlhbCJdLCJpc3N1ZXIiOiJkaWQ6d2ViOmlhdGEtcG9jLmRldi5ob3BhZS5hcHAiLCJ2YWxpZEZyb20iOiIyMDI2LTAxLTAxVDAwOjAwOjAwLjAwMFoiLCJ2YWxpZFVudGlsIjoiMjAyNy0wMi0yNVQxNDozNzo1Ny45MzlaIiwiY3JlZGVudGlhbFN1YmplY3QiOnsiaWQiOiJkaWQ6a2V5OnpEbmFlaWo1eEQ4S1dLRnlHYjlrcmpSdDRjcWd1OXU2ZVYxOXc5VkJZUTZOeTIyWFEiLCJpYXRhX251bWJlciI6IjAwMDAyMDE1IiwibmFtZSI6IlZveWFnZXMgZHUgU29sZWlsIn0sInByb29mIjp7InR5cGUiOiJKc29uV2ViU2lnbmF0dXJlMjAyMCIsImNyZWF0ZWQiOiIyMDI2LTAyLTI1VDE0OjM3OjU3Ljk0OFoiLCJ2ZXJpZmljYXRpb25NZXRob2QiOiJkaWQ6d2ViOmlhdGEtcG9jLmRldi5ob3BhZS5hcHAja2V5LTEiLCJwcm9vZlB1cnBvc2UiOiJhc3NlcnRpb25NZXRob2QiLCJqd3MiOiJleUpoYkdjaU9pSkZVekkxTmlJc0ltSTJOQ0k2Wm1Gc2MyVXNJbU55YVhRaU9sc2lZalkwSWwxOS4uTVFwZlhvaEJtSUwteUJDZWF0eFVQZkk2bG9pVDA4TlZVUDA3RWtYZzJkV0hGdlFWUVMwU1RqSENqQnVydFc5YUY4MWtZVzFRblFEdjlBRVBZVVRSVHcifX1dLCJ0eF9pZCI6IjEyMzQxMjM0IiwicHJvb2YiOnsidHlwZSI6Ikpzb25XZWJTaWduYXR1cmUyMDIwIiwiY3JlYXRlZCI6IjIwMjYtMDItMjVUMTU6MDE6MDAuNTkwWiIsInZlcmlmaWNhdGlvbk1ldGhvZCI6ImRpZDprZXk6ekRuYWVpajV4RDhLV0tGeUdiOWtyalJ0NGNxZ3U5dTZlVjE5dzlWQllRNk55MjJYUSNrZXlzLTEiLCJwcm9vZlB1cnBvc2UiOiJhdXRoZW50aWNhdGlvbiIsImp3cyI6ImV5SmhiR2NpT2lKRlV6STFOaUlzSW1JMk5DSTZabUZzYzJVc0ltTnlhWFFpT2xzaVlqWTBJbDE5Li5sVW8xNW1yWGJqRjlGalUwN2x3ck15YmxfTlppS1BJc3VQeXpsVDNrTWJjelR0dVJQVm83NjgxdW1iOGYxWEdQTzVUUnE1eGtyWmFZUjNiVjd1Z2VtQSJ9fQ",
+                    "iata_number": "00002015"
+                  }
+                },
+                "mdoc": {
+                  "summary": "mDOC format (ISO 18013-5) in base64url",
+                  "value": {
+                    "vp": "o2d2ZXJzaW9uYzEuMGlkb2N1bWVudHOBo2dkb2NUeXBldW9yZy5pc28uMTgwMTMuNS4xLm1ETGxpc3N1ZXJTaWduZWSiam5hbWVTcGFjZXOhcW9yZy5pc28uMTgwMTMuNS4xgdgYWF2kaGRpZ2VzdElEGCdmcmFuZG9tUIcEyELwvm_HAeG47wQrSs5xZWxlbWVudElkZW50aWZpZXJvZG9jdW1lbnRfbnVtYmVybGVsZW1lbnRWYWx1ZWk5ODc2NTQzMjFqaXNzdWVyQXV0aIRDoQEmoRghWQKOMIICijCCAhGgAwIBAgIQjTLF-Kp5b-zNiPSEomQWsTAKBggqhkjOPQQDAzAuMR8wHQYDVQQDDBZPV0YgTXVsdGlwYXogVEVTVCBJQUNBMQswCQYDVQQGDAJVUzAeFw0yNTA4MDMwODU0NDRaFw0yNjExMDEwODU0NDRaMCwxHTAbBgNVBAMMFE9XRiBNdWx0aXBheiBURVNUIERTMQswCQYDVQQGDAJVUzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABCHYqtfEMFFCBm_JWenvwc99z9d9mXTxbYQ6M0l1w_40KbJOwZYkI362dxkNhh0uml-L4GrtKNhAu0VLOGOk8vajggERMIIBDTAfBgNVHSMEGDAWgBSrZRvgVsKQU_Hdf2zkh75o3mDJ9TAOBgNVHQ8BAf8EBAMCB4AwFQYDVR0lAQH_BAswCQYHKIGMXQUBAjBMBgNVHRIERTBDhkFodHRwczovL2dpdGh1Yi5jb20vb3BlbndhbGxldC1mb3VuZGF0aW9uLWxhYnMvaWRlbnRpdHktY3JlZGVudGlhbDBWBgNVHR8ETzBNMEugSaBHhkVodHRwczovL2dpdGh1Yi5jb20vb3BlbndhbGxldC1mb3VuZGF0aW9uLWxhYnMvaWRlbnRpdHktY3JlZGVudGlhbC9jcmwwHQYDVR0OBBYEFHDTr3FkrkVUsNmmki5BNKv48BUGMAoGCCqGSM49BAMDA2cAMGQCMCNpDhsl4I-F_qyLl2I_t2x0XloEP3lnthJzk3yEpZwUZalhVh41oj6C1VT8y_qELwIwOt2SU1CWnuxGgUEXlZ31hj7vFgnPnblOqSM1gLdPGXwf8-f4PqKpoh0X85vHmolOWQez2BhZB66mZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGV1b3JnLmlzby4xODAxMy41LjEubURMbHZhbHVlRGlnZXN0c6Jxb3JnLmlzby4xODAxMy41LjG4KBgiWCC_HmFfpBZ5zOwqid9dxvG8M4nxWNBL1utLtEHui14IXRFYILJ80OLsMGil53QRDzzzHKfYNGvD0jFcADX2kZ_Euf5pDlggIeEzpqu5aPTUfdWwlIRm-cfTQ7cWrazf3ej8JLMztvwAWCDBeyd15bOjVhctLhFCdSODZb7BIYsC5i8Cdh8pXGJAVhgdWCCTGzG0p_4tYwEtsei4QnaZ9bNvOOFraX6yVJQ4TDMdwhgYWCAN6_2Scz37TvHUgLjssGQTasCK8PQO2YKLZPlpQsPpLxVYILYz92XmlfWNnzZBoSOCg5veyn2WfEHG099qvisEurhfGCdYIFdu_mEG6haVVVQkez0IHEpA_5HCCko-J6B2Sgj4x59vDFggVo7IInPVDJRQTsqRHtdf7NjSxu1WwnC5nTj2zTJLGPwBWCC4jPkGh063EtL52n7W2BKxFTx9UDlMU3_TbMqpPzLzqBgkWCAwd8qp0VNpMVIZvO7_ecjdppBBKLgM8izbyhBmVMKMHRRYIA-DL5tX5fM-z9ooo4Key3SurAyKfZdQceOWdy45J8vgEFggfCp6HJpLgFLXVCdtHQLQ8RMozOxYVzXCDI-F8VgonY8YGVggTvnnq80a_yTOUBiUJXROInT6fxFvK055EDc6Sfipae4YH1ggr3Sw8E9Tuqg2lMhHBbxdFC9fuRok_rCZDA2p8rNKx3oIWCDVi_uc885OW_3sgtjQshjAqmNvOR9WW6zDxWvjDDUschggWCD5VTttxRj_VUYU2kLw-ebKqGUKKKFwUyNJlxdYSYjDTAVYIItd8YE_Aenf7JP3DruUJ-Lb5UWFenUn8JLMtXrFVjjXGCZYIOD09ErsJHMaQmBmuWlEXl-n1vYs_NIubb53hQc5eAQfE1ggT5fIr-AeaElNVpg_TkPHXY9Mh_HB10ViGEQ27Xa9kBoSWCCQDhkHPlzJ4zJzA2EFMVpNyYms9mDcs1kvvOQXGXLG-QdYIEG5VpdE2BtholvecvvtEh_kiZrrY_Cgx6Ni2_YzQDO4F1gggcaxFJusacGgM9SShlo-ALYyWA65fKdBtqtBXjtYKO0PWCCsECsVXrlXqpqzK6mVkKc3jtXYdYYkqVnmeFGNYcm60RgqWCCxcXCAV_5uaRf34q845rqidOkSc6UfC3FH3ooXPSEedBZYIHq3Vo5YORnnrFDkHnEydNVGFdN9eywVYZ7tmx2tF6ZcBlgg9jh6bfhrKqN1Vr5M2s_aIc3VNEJrTBB59NTHuXmtbWMYLVggPCQwQKwtHav50O3Y7Yog-LWlR2gRrnAfOwwdNLcQ4PkYHlggd3BCmsClHop5GU7mYRxdZZNhfFhUn1Q4ryMuMgIRljcDWCAd_NYkYxmVONTVeBRqFTsCc3ly77MmYkHOVhgPMnbcDRgsWCD2y7gcT1azA8I89tQdOkjwaJjYIW-CsfIiMq2V07HpawlYIAtdXeIcfOTbW7xuQyNYOIG7Pgkxro36vJ6OgkW6vTWFAlgg8INlisLDiZRtjmnqsRhxOkytXDF4WuKTb4pweHfD3McLWCCbWjNfLhnjgeUQleOjqg65mFQVkyyk9-yD6vYM4Bcd8BghWCCU5i_7Xh6egXtitdWKXrHOP2otxi9dIsOqB4vmuDYGJxgcWCBoHHdy2czIqK__8s5GOrHWAI3G75IYqOOWKzFWJ7_rMA1YILXNgJMdZisG0T3D_n6OvnOJaRrE_BRfE0O8tM15RzA8GClYIIkaXnipDq-A85yQvmXa1k5HKnAKD7HCP3L_pF16CHl_ClggmpMryGc6xJWFix1YfkOGrjYf1lup_TXApTdU5uMujRsYKFggpgR1hWtMb-9JQv3xCTZyqBimxoUYcE7AlbVygSQS4Fx3b3JnLmlzby4xODAxMy41LjEuYWFtdmGmGBtYIDbtvQCMXlQ8ra_SVwtWVdxJ01XHvk7mUx8XFjUqdpfjGCNYIPceoXbjr3-jZG_g_fcpoIgI_nmp1Nu2c9mhmYbof1eqGBpYIGxdYjXHRE36TDLoZbGoeZTWFSpNSm9fY8MKZlFFX6B_GCtYIMBdxfM1i-Q9-LtHN6OXOQfkoJvfsOxGiFQ1K8mu-S9sBFggkxb4of_aHRF9vCqDgiHLKfA6NUkNeR2QOaDmVLAFOHkYJVggAunHyGWG2nv_AncjQPm_LtZQEjTgxsHb_xaTSiXJ4h9tZGV2aWNlS2V5SW5mb6FpZGV2aWNlS2V5pAECIAEhWCBLQB96oJak0YAIKra9-W9yvAfH2nP0mg_wLyog4QOLcCJYIDkLfcUKWFK218R9n4Oub_YcjoxJg7cX0vQ33cUeUkj8bHZhbGlkaXR5SW5mb6Nmc2lnbmVkwHQyMDI1LTA4LTA0VDA3OjU0OjQ0Wml2YWxpZEZyb23AdDIwMjUtMDgtMDRUMDc6NTQ6NDRaanZhbGlkVW50aWzAdDIwMjYtMDgtMDRUMDg6NTQ6NDRaWEAqEDcRaeITL5YEYoTtMfy5gRPRAkiseImIGawWcjHhlDEtroTkQCAuNAV4jTrv0UjDoo9QpAIhLPjfxezViNSmbGRldmljZVNpZ25lZKJqbmFtZVNwYWNlc9gYQaBqZGV2aWNlQXV0aKFvZGV2aWNlU2lnbmF0dXJlhEOhASag9lhAg8YfxgZhMFriq8ZzrOKtuqZDUNE38eNxD1Xs8UH3mv--O5MBVPDO048wlLehD8cm---LThqzE-lUd7yYB6SqRmZzdGF0dXMA"
+                  }
+                },
+                "encryptedMdoc": {
+                  "summary": "Encrypted response from Openid4VP",
+                  "value": {
+                    "vp": "eyJhcHUiOiIiLCJhcHYiOiIiLCJhbGciOiJFQ0RILUVTIiwia2lkIjoia2V5LTEiLCJlbmMiOiJBMTI4R0NNIiwiZXBrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoibVVsTGJReXlHaDd2Ylo1QXhkNUIxbkFJenQyLWNPMV9zUUZMb2lKNmdTOCIsInkiOiJQbEFldnpMalh0LTR0SVQ1MVpYZkl0Y1VHR0ZyNmlOOEJkSk5XSU1KYkEwIn19..ndAcH5CGTnrJnM2f.GvOdWi5u4hteAM6JBbOTtj4hzsbam8iNGr4WTqFYbuRhjtFPFduZqHni2a_ApHTOrszPDFVk6KRWBw8_FoenZbqq33_isdphGrnGjGAmzEFptsZM06Bw9wKPMakbkNDMJS0S_VVPWjEa-8RlrkfOB2gSx3BtX_3CnSp6rnNvhRxTFhEaVgd2uqPbBc3KTxotEA3wrz7zdV36P1NqLRn9Ot18e2a7xBuKVEx8x8kB2TD-RlRvfzuux7H490o_HudkgTtolMMD2o3WeGhFPqTqrIuma0DH5Oce5lmSvQXcqyJBoAJf3llVKk6t4j2nBaZToTXlIKgobZ4ZRit30Hy2UfG-kLm8pipm-2A_bNy2MSQuTVfCH3mibu5Ru9Qow2-_YAHbmX0t4hRzVOp5aKkKNFE-gWwpCHSstcx7zrxF8BUXVJFq0G8WEbGPf65fMMNTfDTDiXIRU_q8dlxwSgz90Pxsvi5tNmObHEoCiZ-JtF-G2be0GdMkSi4m3gzTATG4EkuwzxRd_S2OIuIo2CqGktVGpGVdjyNq1BrTEceoYG-uwhvw_DEolgeLqBPaHaUOmQMuIo8gi_8d1gyDth2IjoDxWbv5lEE49hf8NWK7OEXev1pOk2HGnXAl6wudou23szYbIPmpUUrN8Xe78rWm6c-dZspuolgKJ25jRnfy9CefQejyZ0NADYQv38eLnnFzsrC29Xm55ZOOp3eOsC4YetTzln6ZppNTjpQeRpmUfq-lichRkiupI758UbW9dOg8y1ajruwdKSecrqs61iO6hGiFUozlBGcSF9sqNdRJH2y8aeK4tHCW7QJUOqnQffgEF832u73kYNjRoR_66xYNiUoLcKg2KO5_9Y0A4tNV2pMWVZdIvTPN19SFXzsa4szTtC4fZn2GqGbD3Oji5h2yd7e4wClxvG_33YXz_kviK1KhgHqViFz0NKgfgrtpxCDw4hMF7NCrmx1Ocf098RHpISkU7qVpSBB3GP92PB6X5ZKDSemXj0WikpgQU1QllQlM17X84fdWxk2Tw8s8JJlAC83d7lCJ41bT49UIIkcWiRgsWonTcECMTFVQVOHrp3zwsa24PvATnsA7qpLm8K_uK3Tmnav7EthRWbIkOHTCS3Cl_GzQfggYEiNDowTPpVEkhq-8PFLAF_Ocyap9CTMarbVoiszsX76zBTG-MRKSIbUmbHLhmZ9wmKn8oVdfSxwxQ0Jj_rPZqiJSivWGLPdvqj_vo6K3ffCDBragI0va4fzxDILx0e__bN14WycHoPkk4AzJznTqS-vpWz3rMXOp3_U5wiT4mm8ooL2txEWnPh8GsBBgB64uBplVCEy1YH3NApjLZKdAuXnKER1w3sKlntAl92h65RjQEPAdMb5JiSPeImmutMn9v0pBUOy-d99-sMxNtypUN2W184bh1M3R0isphMfGzDgSIQjW9LGyOZTHl6S6Ln5z1NMHwoMhwz_5izsyvN7rFMZx464aB98TMjy_9uKcKV9mB8E4aGlfwIAl1-KERzohRLn9CdnigJIzB1Vllg8VLGtFIK8odUPFfmoL-dFYZvt2ZF8ntqHdCvo8D_Jl-aBXHsbx_FA0gV708UWfiulEkd-4kp76p7DfaEqPNyyMABjfw3KnnswiiJ-T9Qtyjc3ZXcsIztGgXTmx8QiE2aMXhCqMKJwMSKzS4cjjkew5CShq-k1n1hS2615BgJ-5NG_ZMc08m-ECL_lUosW8Vfe-lG1D42VpJXIOr_6nUyFAdvp-ouNrKlGgAUf_J0v8doYqv9q1F9Ia8E0r3p6EPnFm4rMkxwQtTioEbWhs2x0dY1Sh_5-iTcXOp6umHHHbx93lr2_U_YvS435TV1FnebtJp4ORVPtdsf8t7pmAPoOMDBHLxb_QKjNmnDkAz8mrQ4Xq4it3j4RA2uO1trGSPtXNnt2zdCP61Bl5-v5cb2MNZTVJL0cxFAwWCX36oGILGuIG6gYeIUHyH0ANJ1qOzx5X5TSnvvDLENTfjYOGRM80O5WG0jeA0xY2Zj9Hp8HqEjEn5fz7yeKdN8jdPhn2S4RccaAaBoy0GLitlP_DWCmikSfRZWN4hshXrh8Rr_-m7JIuZ5gaOndvboq0pmj-KS3wSFtFFoQ5DdvhTe-3C3qd0avZIEUMoTIs6WUpChF9Pbv8hAcdgLqYCCHYFXrUf9WdoWfBNr_cdwk82FUiggrSfVU0H5enTafgM0LlpBjCHGjGuylnP_e-HvpU4EYd3kK-LOg0vWgmeCR-Ad3xLjfMdOunfhKWsFPWgl1wXbOEhrrQ7IMENh1UKwOBkfoafCheitWF7wPRTo21UAtmj3b6YD_YypsDNRmGRTYP2aHPzO2e-69Jnn8EgLZLKK4ZhDIIDG-uZK9-cQTlG4vmgodwWGN2xUXZHwwmvXlVnknxhtnlzbEgo9FDg_IeEjjNmy1-YItL2H4eObKHJn5igMqsdybbDmcYQNytQuUvCa3hiMuEIuOMs9BGhVJ7QUQM7mplxvkp3SAV3_uVQ5pHW10TS1uMET0GEIfOplRxyv322HamQeWWd7e_pOoZpDsX3WcDyNFCR3cbqeg-ihXADV0TLoxiwdZI32JFsBczHf5jacdd9qS1ymu5ZzBSOLpVZ-7HshFeK7LeCtKoWyHmk4G3yXallf-Uqon-RQmXI8A8kLGBBIqqXSdAvYV3LJ-ChDwHVCXmsfYzjs4MVxnuCsxx2qOYJX8hKwrUKh_59ydfrNdzDrOUPTkBaIfq5_YH5cuvPTY5iUjHN6IoV0MPQCOakWUZ63f2rMr52RyASqJN23KyQs5FrM0YFTpoBj5eBbIn-IMlGV4cWqxDTulvPyziCZPk9Dfn7lH6Ih0qkYge2bwZIODrOmw75hmBVNQOl70QVIVpC4uxAHJ37R-vuzqBf9VNaQwQoyw4yuZD5FIi2qpNzyLOFyenKvy4ouDc5Ak-v-JJGb0PHyF4RWJCi4Tqg0HX21x-4yuG3KbjD5Jdiq6UiFnb-1SBo90slzZAxbbP2e_TRCv5w4p0xWbBJfJl7V2wKlMnbuciRDD1QJ0MiTKiBSKagJQmaPSw7szfjKNlZESDJtiZnDuJ9T7rPOxFemdfYfT6PHCJ6c7snJ_i75DzfGAloW-aZh9Eha-gsf1lKxy9OprGkTZc9EyeSDQ45n1-4gXYiVceOuQWDkUx0Or7tmSMTCbQ5DNX27YXHt_RxDcKNukbc_mXn0uLyu3lT5RFHhb_ZYcVoYeeu2zZs422ChMkE8eUSjP9C4AnKsEyk2UP5KOBQWSGZ1Xq4bae42LcyG3UxYB4sfFtCuohgB_wW3uxSlEr7EdxRf1-NWDUFxBplBXvEERXwbpdF2OEBFcPnxWIfJkWHEcQcIfYCx8OmXJ9O_70sCsDbqM6tBp3miKEbkAeGFMLnmONafSxjHMRavCnCKjElzyOCTCfYqJUJgruA6Oe-W35MrEDIvP3iJ0IvNIiDd7Gu4gEEOLpKCJRH2jp3fGUSlD3AvtVNvT-xKjwmPNK56TN_cPvwxCOII7L0vGvaAwgH1B82QGSYkDG19Hh9LRnmxA2LGQzlrCVdiv7jywveliQD_vG-Yy_VKwNIUjumIWFRCL40MHNCYr80DdT9vrQHsj35DDXAjGr_0OZkY_YOvH46Z1w3F6vKDAuFIKbTui0fuu4E1mFC_1ZdScJ8hu6QzOOAifZz_-7MXK9kxhPZa3aYVqlrTYeNCbv5KPVOS9cYtchnG1I4SFuL7RvXIyXWzbW52HZyqYlmBtJFlXodqS3R_Rnx22pRxmj7jalwBk2gqnlA9OdaEHtCAtquJMGd6MmZSQSQDNXHT0_tf9j4yLYrRYy_8qJO7p4Up4DLQMCJVqxJwjlukuT8JlseJXHF7lbeTkX0J8szaNW_0qSti4O3E1yt5sOgJehQWYcl8wHafCU9u-hna23At2hLkjLYT4RWolUs2yrzBBhOtZbPWjE3Sbsx9Hs72mr0QsH_0n_A4FmdQXS5BFxMSwNxu8FHN_w3LSfNMWg-iImjkgmOhyqQrQ8rF9PYNBZF9hPhQXODT_6a6PGtQW-gAb-aDMfVBdXqFBzp6bh3wn_Ue3U2VDjn-BP2mWyTh0eCpj9r6T666W-TmoFdml7tE4JYhKZBPGQdS2yuPMASqc-DbXW89GpovNMovEPPiEuST8oS7ZKzOS4wiach0ULFWJhb3i3GJVKQSqysGlBk54JHI0CtaMZj6fuMRxsVgnmHNQKtNuqkEfTh_hvDfgS68F7evNluUYlv3Jgz01p2VOjgSIsMpJncjPrGoi65J9fpl25dz1VCuzb4dI9k4pYmnzXzj_eC8uhc-xm4JkRLeftB1ihjkJWV9L-58xzq1jp-0vVfDLVtdhIXpqysVcImrI_I4ou4TP-73Qr4C2tC9azc-7wsE1iriN43lWoN4Rh0wAjR1K9nj_jQ3mLgoAThfoy-1o3IJWGjmSqZ-of2x0cDdo-TB6qFtSdLrHdCvIoenX1nDWTReI1nDFRJIgv5xhrC_BU1YMxiGQrL6VXrZUv_1MHx3Jenk41t6JXXqDIgk_ijz_bH8XaIgi2rNOM92tAzOz8y9CoCprS2vvtey4_BTN85LwuqD85IN--y9LaX1wDal832kPkmqjs2PQY3R-kBYzFNfZTDoHkMtd8HK1ywqIADqv7vO1nF4pvTU1a_19wH9xLOx-Pn11OrhEhbPZx0RngFLDdaKEU2WC6ZBdlGz8PPsdG4kJtITzDVStUTY_dGI8v6dgJV7OaFr6iJ_tIR7_ROlBdO_sdGjdsyse2pfltyCD41zgCZCE73A_cTMxg3gqYvLnkvweraFIWM5SsaKRiVlvR_PHmHNI2YO_xFHqllyTRiii7C8TqzrhVHTqshifuHvJvIf1W2YhyQQyw7QAqZpu91L-HjuXkBItVLDnmeZ2MfmkWdjx6IY_tsJXy0xyvhox51Nmc9lWEQ4eIqsshzAkaBAXGLxQsgPs3VD6b1DRVzZDdwOrPECuuItiLIrwURfJ-3CSI-IcmFczfWOmU1NnI0AwhV0vR6PrSEShMicHol48vvU8M-UilwKMZnBMiEKYSRsNwNefSaFZGUOUrG4vGMbZwQjO5DLPyTbHWTi6UbTPXCdtpZwk7D0M0xnmNvNr7878o41G7vR5dZ04m89VVbTIIfQM-BZdqEn-FOJmP0eyYqcE_wjkZiGZYh8MQdTuswI8Xgp9IkczlT57QcTKKdMU6AwK80Rdgjt1ruC5-WOjpclCjejPxiCppBpgDMNqRDZtyEHOWhtWrQT65qRAvZJaVXVLmMt0Hqw_n5pYR2F19d2cBDyaMKZsVGpi8-k6emOod90K-yhBNEyqjVaj828_zKPvCS7x5rWuYIF7e5Z7tRheqKa1C2Bn5KJgCszwXfoVLolq10h8MGTE.jmlXQjUDW0rvVGA5fY-iLg"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "VP verification successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyVPResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid VP format or missing required fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - VP verification failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationFailureResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - VP is valid but doesn't meet business requirements",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Verification"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "VerificationDebugController_healthCheck",
+        "summary": "Health check endpoint",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy"
+          }
+        },
+        "tags": [
+          "Debug"
+        ]
+      }
+    },
+    "/verify/certificate": {
+      "post": {
+        "operationId": "verifyCertificate",
+        "summary": "Verify X.509 certificate",
+        "description": "Verifies ES256 X.509 certificates for Trust Registry compliance. Validates signature, expiry, self-signed status, and ES256 algorithm compatibility according to IATA interoperability profile.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Certificate verification request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyCertificateRequest"
+              },
+              "examples": {
+                "es256Certificate": {
+                  "summary": "ES256 self-signed certificate verification",
+                  "value": {
+                    "certificate": "-----BEGIN CERTIFICATE-----\nMIIBizCCATGgAwIBAgIUOGrddr/dY1VIxSF9C1VDfG6BSY0wCgYIKoZIzj0EAwIw\nGzEZMBcGA1UEAwwQVGVzdCBDZXJ0aWZpY2F0ZTAeFw0yNTExMTgwOTM4MTdaFw0y\nNjExMTgwOTM4MTdaMBsxGTAXBgNVBAMMEFRlc3QgQ2VydGlmaWNhdGUwWTATBgcq\nhkjOPQIBBggqhkjOPQMBBwNCAASEj8mUXXBR5kgfRw2n8Qbg8+jBbIpo9XYg3jhd\nBvApJtK5500J5DEbGCDAxyPQUM5Efij/K6P+qT1FEejcHdzEo1MwUTAdBgNVHQ4E\nFgQUHplM9TSFDJh2twMWtIvZZ+Txa9owHwYDVR0jBBgwFoAUHplM9TSFDJh2twMW\ntIvZZ+Txa9owDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNIADBFAiBheWao\nU/dnAxp8ZOTuPZTT9wae7aggn9U6dk53Cux3MgIhAL8douXv0f4JbzXxNQvIORud\nKTaRbhXXXCwJJwtR16Jn\n-----END CERTIFICATE-----"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Certificate verification completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyCertificateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid certificate format or missing required fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Debug"
+        ]
+      }
+    },
+    "/debug/decode": {
+      "post": {
+        "operationId": "decodeToken",
+        "summary": "Decode VC/VP token for debugging",
+        "description": "Decodes a VC or VP token without verification, showing structure, headers, payloads, and selective disclosures for debugging purposes",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Token decode request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecodeTokenRequest"
+              },
+              "examples": {
+                "vc": {
+                  "summary": "Decode VC token",
+                  "value": {
+                    "token": "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJkaWQ6d2ViOmlhdGEuY29tOnBvYyIsImlhdCI6MTc2MTcxMjUwMSwiZXhwIjoxODQ4MTEyNTAxLCJ2Y3QiOiJodHRwczovL2lhdGEub3JnL2NoZWNrLWluLWNyZWRlbnRpYWwiLCJzdGF0dXMiOnsic3RhdHVzX2xpc3QiOnsiaWR4IjowLCJ1cmkiOiJodHRwczovL2lhdGEuY29tL3N0YXR1cy8xIn19LCJ2Y3QjaW50ZWdyaXR5Ijoic2hhMjU2LURkUW94RVBRL1NJL1hoellPb1BzSHFxY1cwVzI4bnIzNGJnN0t0WWpBOWciLCJjbmYiOnsiandrIjp7ImtleV9vcHMiOlsidmVyaWZ5Il0sImV4dCI6dHJ1ZSwia3R5IjoiRUMiLCJ4IjoiRDlVTU1zNlFXWGNveDZQRGxYNURKUFNyOVN2bmNIUmdESWdPWGZ1bk00OCIsInkiOiJXa3ZReEhBMHlyMWVXamo0OElnbG1uWWhaWDZzZXA3akZuQ1dYU0tpbDRVIiwiY3J2IjoiUC0yNTYifX0sImJvb2tpbmdfcmVmZXJlbmNlIjoiQUJDMTIzIiwiZmxpZ2h0X251bWJlciI6IktFMTIzIiwiZGVwYXJ0dXJlX2RhdGUiOiIyMDI0LTEyLTIwIiwiZGVwYXJ0dXJlX2FpcnBvcnQiOiJJQ04iLCJhcnJpdmFsX2FpcnBvcnQiOiJKRksiLCJfc2QiOlsiSHZXd0otRW1OdHZjX003d0RTZlRGMjVpMzU4c3hxSVlOSld5cEJ6LUszbyJdLCJfc2RfYWxnIjoic2hhLTI1NiJ9.vDHomfAdPPPrhP6-hxyqb1NEQuV5c9enQeUn8uN4jTo46pW6NrXDq4GY45YFE4Qxmg2-2RrzvtiRjsRXqQaWyA~WyJhZWRjY2Y5M2FiYWFhOTYzIiwibmFtZSIsIkpvaG4gU21pdGgiXQ~",
+                    "tokenType": "vc"
+                  }
+                },
+                "vp": {
+                  "summary": "Decode VP token with Key Binding",
+                  "value": {
+                    "token": "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJkaWQ6d2ViOmlhdGEtcG9jLmRldi5ob3BhZS5hcHAiLCJpYXQiOjE3NjE3Mzk3NzYsImV4cCI6MjA3NzA5OTc3NiwidmN0IjoiaHR0cHM6Ly9pYXRhLXBvYy5kZXYuaG9wYWUuYXBwLy53ZWxsLWtub3duL3ZjdC9jaGVja2luLWNyZWRlbnRpYWwiLCJzdGF0dXMiOnsic3RhdHVzX2xpc3QiOnsiaWR4IjowLCJ1cmkiOiJodHRwczovL2lhdGEtcG9jLmRldi5ob3BhZS5hcHAvc3RhdHVzLzEifX0sInZjdCNpbnRlZ3JpdHkiOiJzaGEyNTYtRGRRb3hFUFEvU0kvWGh6WU9vUHNIcXFjVzBXMjhucjM0Ymc3S3RZakE5ZyIsImNuZiI6eyJqd2siOnsia2V5X29wcyI6WyJ2ZXJpZnkiXSwiZXh0Ijp0cnVlLCJrdHkiOiJFQyIsIngiOiJEOVVNTXM2UVdYY294NlBEbFg1REpQU3I5U3ZuY0hSZ0RJZ09YZnVuTTQ4IiwieSI6IldrdlF4SEEweXIxZVdqajQ4SWdsbW5ZaFpYNnNlcDdqRm5DV1hTS2lsNFUiLCJjcnYiOiJQLTI1NiJ9fSwibmFtZSI6IkpvaG4gU21pdGgiLCJib29raW5nX3JlZmVyZW5jZSI6IkFCQzEyMyIsImZsaWdodF9udW1iZXIiOiJLRTEyMyIsImRlcGFydHVyZV9kYXRlIjoiMjAyNC0xMi0yMCIsImRlcGFydHVyZV9haXJwb3J0IjoiSUNOIiwiYXJyaXZhbF9haXJwb3J0IjoiSkZLIiwiX3NkIjpbIkVOajJ4SVo2VHRkc3NZckF6NkpEcmdtNWkzaUcxa3hCa1VBVzQ1Y0s3SWsiXSwiX3NkX2FsZyI6InNoYS0yNTYifQ.JIBQoysA8IA3z1b2i796emFpAyAzPLBahSKKyfSN00twyN4iaJExb0VW93vppmPyFQ17eoYCwiDBXgWxcgPtfw~WyIzNTIyYzczMTZhMzM5MTcxIiwicGFzc3BvcnRfbnVtYmVyIiwiQUIxMjM0NTY3Il0~M6C1WHRWHyznDA54a_boKAIEIuwE7WDeZITs42Nv7reSvw",
+                    "tokenType": "vp"
+                  }
+                },
+                "autoDetect": {
+                  "summary": "Auto-detect token type",
+                  "value": {
+                    "token": "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJkaWQ6d2ViOmlhdGEuY29tOnBvYyIsImlhdCI6MTc2MTU3MDE1NSwiZXhwIjoxNzYxNjU2NTU1LCJ2Y3QiOiJodHRwczovL2lhdGEub3JnL2NoZWNrLWluLWNyZWRlbnRpYWwiLCJzdGF0dXMiOnsic3RhdHVzX2xpc3QiOnsiaWR4IjowLCJ1cmkiOiJodHRwczovL2lhdGEuY29tL3N0YXR1cy8xIn19LCJ2Y3QjaW50ZWdyaXR5Ijoic2hhMjU2LURkUW94RVBRL1NJL1hoellPb1BzSHFxY1cwVzI4bnIzNGJnN0t0WWpBOWciLCJjbmYiOnsiandrIjp7ImtleV9vcHMiOlsidmVyaWZ5Il0sImV4dCI6dHJ1ZSwia3R5IjoiRUMiLCJ4IjoiRDlVTU1zNlFXWGNveDZQRGxYNURKUFNyOVN2bmNIUmdESWdPWGZ1bk00OCIsInkiOiJXa3ZReEhBMHlyMWVXamo0OElnbG1uWWhaWDZzZXA3akZuQ1dYU0tpbDRVIiwiY3J2IjoiUC0yNTYifX0sIm5hbWUiOiJKb2huIFNtaXRoIiwiYm9va2luZ19yZWZlcmVuY2UiOiJBQkMxMjMiLCJmbGlnaHRfbnVtYmVyIjoiS0UxMjMiLCJkZXBhcnR1cmVfZGF0ZSI6IjIwMjQtMTItMjAiLCJkZXBhcnR1cmVfYWlycG9ydCI6IklDTiIsImFycml2YWxfYWlycG9ydCI6IkpGSyIsIl9zZCI6WyJxVlJZdXBGbm1GWk5FR2hEOXJpa3JXZ1pnbDVBNzFka3RZcExQR2N2MzBjIl0sIl9zZF9hbGciOiJzaGEtMjU2In0.UDAab7PeiiKdwoZlm5P6puC4HsbHp5Ddz7D_vhtHJQ17TCP13GeSymldUtG7pL44-i2VdR1nmsVP0W5JtIlatA~WyJmYWQ5ODNjNmMzYmY1YmNiIiwicGFzc3BvcnRfbnVtYmVyIiwiQUIxMjM0NTY3Il0~"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token decoded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecodeTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid token format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Debug"
+        ]
+      }
+    },
+    "/debug/vcdm/vc": {
+      "post": {
+        "operationId": "VerificationDebugController_createDebugVcdm",
+        "summary": "Create debug VCDM VC",
+        "description": "Create a debug VCDM VC for testing purposes",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Debug"
+        ]
+      }
+    },
+    "/debug/vcdm/vp": {
+      "post": {
+        "operationId": "VerificationDebugController_createDebugVpVcdm",
+        "summary": "Create debug VCDM VP",
+        "description": "Create a debug VCDM VP for testing purposes",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "W3C VC to wrap in VP",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              },
+              "examples": {
+                "basic": {
+                  "summary": "Basic W3C VC example and transaction ID",
+                  "value": {
+                    "vc": {
+                      "@context": [
+                        "https://www.w3.org/2018/credentials/v1",
+                        "https://w3id.org/security/suites/jws-2020/v1"
+                      ],
+                      "id": "urn:uuid:ccf07d44-4ae7-4438-bcbe-7af813f3443a",
+                      "type": [
+                        "VerifiableCredential",
+                        "IATATravelAgencyCredential"
+                      ],
+                      "issuer": "did:web:iata-poc.dev.hopae.app",
+                      "validFrom": "2026-01-01T00:00:00.000Z",
+                      "validUntil": "2027-02-25T14:37:57.939Z",
+                      "credentialSubject": {
+                        "id": "did:key:zDnaeij5xD8KWKFyGb9krjRt4cqgu9u6eV19w9VBYQ6Ny22XQ",
+                        "iata_number": "00002015",
+                        "name": "Voyages du Soleil"
+                      },
+                      "proof": {
+                        "type": "JsonWebSignature2020",
+                        "created": "2026-02-25T14:37:57.948Z",
+                        "verificationMethod": "did:web:iata-poc.dev.hopae.app#key-1",
+                        "proofPurpose": "assertionMethod",
+                        "jws": "eyJhbGciOiJFUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..MQpfXohBmIL-yBCeatxUPfI6loiT08NVUP07EkXg2dWHFvQVQS0STjHCjBurtW9aF81kYW1QnQDv9AEPYUTRTw"
+                      }
+                    },
+                    "tx_id": "12341234"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Debug VCDM VP created successfully into base64url",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateW3CVPResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Debug"
+        ]
+      }
+    },
+    "/status-list/{listId}": {
+      "get": {
+        "operationId": "WellKnownController_getStatusList",
+        "summary": "Get credential status list",
+        "description": "Returns a status list for credential revocation/suspension checking according to the Status List 2021 specification",
+        "parameters": [
+          {
+            "name": "listId",
+            "required": true,
+            "in": "path",
+            "description": "The status list identifier",
+            "schema": {
+              "example": "1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status list retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Status list not found"
+          }
+        },
+        "tags": [
+          "Well-Known Endpoints"
+        ]
+      }
+    },
+    "/status-list/{listID}/{index}": {
+      "put": {
+        "operationId": "WellKnownController_toggleRevoke",
+        "summary": "Toggle credential revocation",
+        "description": "Toggles the revocation status of a credential in the status list",
+        "parameters": [
+          {
+            "name": "listID",
+            "required": true,
+            "in": "path",
+            "description": "The status list identifier",
+            "schema": {
+              "example": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "index",
+            "required": true,
+            "in": "path",
+            "description": "The index of the credential in the status list",
+            "schema": {
+              "example": "0",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Well-Known Endpoints"
+        ]
+      }
+    },
+    "/status-list/{listId}/debug": {
+      "get": {
+        "operationId": "WellKnownController_getStatusListDebug",
+        "summary": "Get status list debug information",
+        "description": "Returns debug information about the status list",
+        "parameters": [
+          {
+            "name": "listId",
+            "required": true,
+            "in": "path",
+            "description": "The status list identifier",
+            "schema": {
+              "example": "1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Well-Known Endpoints"
+        ]
+      }
+    },
+    "/.well-known/did.json": {
+      "get": {
+        "operationId": "WellKnownController_resolveDid",
+        "summary": "resolve iata test did document",
+        "description": "return the did document of did:web:iata-poc.dev.hopae.app",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Well-Known Endpoints"
+        ]
+      }
+    },
+    "/travelagency1/did.json": {
+      "get": {
+        "operationId": "WellKnownController_resolveTravelAgency1Did",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Well-Known Endpoints"
+        ]
+      }
+    },
+    "/vct/{vctType}": {
+      "get": {
+        "operationId": "VctController_getVctMetadata",
+        "summary": "Get VCT (Verifiable Credential Type) metadata",
+        "description": "Returns metadata for a specific verifiable credential type including schema and supported algorithms",
+        "parameters": [
+          {
+            "name": "vctType",
+            "required": true,
+            "in": "path",
+            "description": "The credential type identifier",
+            "schema": {
+              "enum": [
+                "dta",
+                "evisa",
+                "epassport"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VCT metadata retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VctMetadataDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "VCT type not found"
+          }
+        },
+        "tags": [
+          "VCT Metadata Endpoints"
+        ]
+      }
+    },
+    "/trustLists": {
+      "get": {
+        "operationId": "TrustListController_getTrustList",
+        "summary": "Get Trust List",
+        "description": "Returns the Trust List JADES Token",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Trust List JADES Token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Trust List"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "VP Verification API",
+    "description": "API for verifying Verifiable Presentations (VP) supporting SD-JWT VC, W3C VCDM (JSON-LD), and mDOC formats",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "url": "",
+      "email": "lukas@hopae.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Verification",
+      "description": "VP verification operations"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://iata-poc.dev.hopae.app",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      },
+      "BearerAuth": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "StartDcApiSessionDto": {
+        "type": "object",
+        "properties": {
+          "expected_origins": {
+            "description": "Expected origins",
+            "example": [
+              "https://example.com"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "expected_origins"
+        ]
+      },
+      "VerifyDcApiSessionDto": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string",
+            "description": "Response from the device",
+            "example": "eyJhbGciOiJFUzI1NiJ9..."
+          }
+        },
+        "required": [
+          "response"
+        ]
+      },
+      "QrStartResponse": {
+        "type": "object",
+        "properties": {
+          "requestUri": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestUri",
+          "sessionId"
+        ]
+      },
+      "QrStatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "claims": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "status",
+          "verified",
+          "claims"
+        ]
+      },
+      "VerifyVPRequest": {
+        "type": "object",
+        "properties": {
+          "vp": {
+            "description": "The Verifiable Presentation to verify. Format is automatically detected based on content structure (SD-JWT VC, W3C VCDM, or mDOC).",
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "SD-JWT VC or mDOC (base64 encoded)"
+              },
+              {
+                "type": "object",
+                "description": "W3C VCDM JSON-LD object"
+              }
+            ],
+            "examples": {
+              "sdJwtVc": {
+                "summary": "IATA SD-JWT VP with Key Binding JWT (Check-in Credential)",
+                "value": "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJkaWQ6d2ViOmlhdGEtcG9jLmRldi5ob3BhZS5hcHAiLCJpYXQiOjE3NjE3Mzk3NzYsImV4cCI6MjA3NzA5OTc3NiwidmN0IjoiaHR0cHM6Ly9pYXRhLXBvYy5kZXYuaG9wYWUuYXBwLy53ZWxsLWtub3duL3ZjdC9jaGVja2luLWNyZWRlbnRpYWwiLCJzdGF0dXMiOnsic3RhdHVzX2xpc3QiOnsiaWR4IjowLCJ1cmkiOiJodHRwczovL2lhdGEtcG9jLmRldi5ob3BhZS5hcHAvc3RhdHVzLzEifX0sInZjdCNpbnRlZ3JpdHkiOiJzaGEyNTYtRGRRb3hFUFEvU0kvWGh6WU9vUHNIcXFjVzBXMjhucjM0Ymc3S3RZakE5ZyIsImNuZiI6eyJqd2siOnsia2V5X29wcyI6WyJ2ZXJpZnkiXSwiZXh0Ijp0cnVlLCJrdHkiOiJFQyIsIngiOiJEOVVNTXM2UVdYY294NlBEbFg1REpQU3I5U3ZuY0hSZ0RJZ09YZnVuTTQ4IiwieSI6IldrdlF4SEEweXIxZVdqajQ4SWdsbW5ZaFpYNnNlcDdqRm5DV1hTS2lsNFUiLCJjcnYiOiJQLTI1NiJ9fSwibmFtZSI6IkpvaG4gU21pdGgiLCJib29raW5nX3JlZmVyZW5jZSI6IkFCQzEyMyIsImZsaWdodF9udW1iZXIiOiJLRTEyMyIsImRlcGFydHVyZV9kYXRlIjoiMjAyNC0xMi0yMCIsImRlcGFydHVyZV9haXJwb3J0IjoiSUNOIiwiYXJyaXZhbF9haXJwb3J0IjoiSkZLIiwiX3NkIjpbIkVOajJ4SVo2VHRkc3NZckF6NkpEcmdtNWkzaUcxa3hCa1VBVzQ1Y0s3SWsiXSwiX3NkX2FsZyI6InNoYS0yNTYifQ.JIBQoysA8IA3z1b2i796emFpAyAzPLBahSKKyfSN00twyN4iaJExb0VW93vppmPyFQ17eoYCwiDBXgWxcgPtfw~WyIzNTIyYzczMTZhMzM5MTcxIiwicGFzc3BvcnRfbnVtYmVyIiwiQUIxMjM0NTY3Il0~"
+              },
+              "w3cVcdm": {
+                "summary": "W3C VCDM (JSON-LD) format",
+                "value": {
+                  "@context": [
+                    "https://www.w3.org/2018/credentials/v1"
+                  ],
+                  "type": [
+                    "VerifiablePresentation"
+                  ],
+                  "verifiableCredential": [
+                    {
+                      "@context": [
+                        "https://www.w3.org/2018/credentials/v1"
+                      ],
+                      "type": [
+                        "VerifiableCredential",
+                        "PassportCredential"
+                      ],
+                      "issuer": "did:example:gov123",
+                      "credentialSubject": {
+
+                      }
+                    }
+                  ],
+                  "proof": {
+
+                  }
+                }
+              },
+              "mdoc": {
+                "summary": "mDOC format (ISO 18013-5)",
+                "value": "oRGhhSUBlbGVtZW50SWRlbnRpZmllcngYb3JnLmlzby4xODAxMy41LjEubURMaWRvY3VtZW50c..."
+              }
+            }
+          },
+          "iata_number": {
+            "type": "string",
+            "description": "IATA number from NDC message",
+            "example": "iata-number-1234"
+          }
+        },
+        "required": [
+          "vp"
+        ]
+      },
+      "VPMetadata": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of the credential",
+            "example": "https://schemas.iata.org/vc/travel/epassport/v1.0"
+          },
+          "iata_number": {
+            "type": "string"
+          },
+          "tx_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "iata_number",
+          "tx_id"
+        ]
+      },
+      "VerifyVPResponse": {
+        "type": "object",
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "description": "Whether the VP was successfully verified",
+            "example": true
+          },
+          "format": {
+            "type": "string",
+            "description": "Auto-detected or validated format of the VP",
+            "example": "sd-jwt-vc"
+          },
+          "claims": {
+            "type": "object",
+            "description": "Verified claims from the credential",
+            "example": {
+              "given_name": "John",
+              "family_name": "Doe",
+              "birth_date": "1990-01-01",
+              "nationality": "US",
+              "passport_number": "123456789"
+            }
+          },
+          "metadata": {
+            "description": "Format-specific metadata",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VPMetadata"
+              }
+            ]
+          }
+        },
+        "required": [
+          "verified",
+          "format",
+          "claims"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error code for programmatic handling",
+            "example": "INVALID_FORMAT"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "The provided VP format is not recognized or is malformed"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional context about the error",
+            "example": {
+              "supportedFormats": [
+                "SD-JWT VC",
+                "W3C VCDM (JSON-LD)",
+                "mDOC"
+              ]
+            }
+          }
+        },
+        "required": [
+          "error",
+          "message"
+        ]
+      },
+      "VerificationFailureResponse": {
+        "type": "object",
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "description": "Whether the VP was successfully verified",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "description": "Error code",
+            "example": "SIGNATURE_VERIFICATION_FAILED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "VP signature verification failed"
+          },
+          "details": {
+            "type": "object",
+            "description": "Additional error details",
+            "example": {
+              "reason": "Invalid signature",
+              "checkedAt": "2024-01-15T14:30:00Z"
+            }
+          }
+        },
+        "required": [
+          "verified",
+          "error",
+          "message"
+        ]
+      },
+      "VerifyCertificateRequest": {
+        "type": "object",
+        "properties": {
+          "certificate": {
+            "type": "string",
+            "description": "PEM formatted X.509 certificate to verify (ES256/ECDSA only)",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBizCCATGgAwIBAgIUOGrddr/dY1VIxSF9C1VDfG6BSY0wCgYIKoZIzj0EAwIw\nGzEZMBcGA1UEAwwQVGVzdCBDZXJ0aWZpY2F0ZTAeFw0yNTExMTgwOTM4MTdaFw0y\nNjExMTgwOTM4MTdaMBsxGTAXBgNVBAMMEFRlc3QgQ2VydGlmaWNhdGUwWTATBgcq\nhkjOPQIBBggqhkjOPQMBBwNCAASEj8mUXXBR5kgfRw2n8Qbg8+jBbIpo9XYg3jhd\nBvApJtK5500J5DEbGCDAxyPQUM5Efij/K6P+qT1FEejcHdzEo1MwUTAdBgNVHQ4E\nFgQUHplM9TSFDJh2twMWtIvZZ+Txa9owHwYDVR0jBBgwFoAUHplM9TSFDJh2twMW\ntIvZZ+Txa9owDwYDVR0TAQH/BAUwAwEB/zAKBggqhkjOPQQDAgNIADBFAiBheWao\nU/dnAxp8ZOTuPZTT9wae7aggn9U6dk53Cux3MgIhAL8douXv0f4JbzXxNQvIORud\nKTaRbhXXXCwJJwtR16Jn\n-----END CERTIFICATE-----"
+          }
+        },
+        "required": [
+          "certificate"
+        ]
+      },
+      "CertificateValidations": {
+        "type": "object",
+        "properties": {
+          "signature_valid": {
+            "type": "boolean",
+            "description": "Whether the certificate signature is valid",
+            "example": true
+          },
+          "not_expired": {
+            "type": "boolean",
+            "description": "Whether the certificate is within validity period",
+            "example": true
+          },
+          "self_signed": {
+            "type": "boolean",
+            "description": "Whether the certificate is self-signed (issuer === subject)",
+            "example": true
+          },
+          "key_usage_valid": {
+            "type": "boolean",
+            "description": "Whether the certificate has required key usage (digitalSignature)",
+            "example": true
+          },
+          "algorithm_supported": {
+            "type": "boolean",
+            "description": "Whether the certificate uses supported algorithm (ES256 only)",
+            "example": true
+          }
+        },
+        "required": [
+          "signature_valid",
+          "not_expired",
+          "self_signed",
+          "key_usage_valid",
+          "algorithm_supported"
+        ]
+      },
+      "VerifyCertificateResponse": {
+        "type": "object",
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "description": "Overall verification result",
+            "example": true
+          },
+          "validations": {
+            "description": "Detailed validation results",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CertificateValidations"
+              }
+            ]
+          },
+          "issuer": {
+            "type": "string",
+            "description": "Certificate issuer (CN field from issuer)",
+            "example": "Test Certificate"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Certificate subject (CN field from subject)",
+            "example": "Test Certificate"
+          },
+          "valid_from": {
+            "type": "string",
+            "description": "Certificate validity start date",
+            "example": "2025-11-18T09:38:17.000Z"
+          },
+          "valid_until": {
+            "type": "string",
+            "description": "Certificate validity end date",
+            "example": "2026-11-18T09:38:17.000Z"
+          },
+          "algorithm": {
+            "type": "string",
+            "description": "Certificate signature algorithm",
+            "example": "ECDSA"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if verification failed",
+            "example": "Certificate signature verification failed"
+          }
+        },
+        "required": [
+          "verified",
+          "validations",
+          "issuer",
+          "subject",
+          "valid_from",
+          "valid_until",
+          "algorithm"
+        ]
+      },
+      "DecodeTokenRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The token to decode (VC or VP)",
+            "example": "eyJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJkaWQ6d2ViOmlhdGEtcG9jLmRldi5ob3BhZS5hcHAiLCJpYXQiOjE3NjE3MzgyMzUsImV4cCI6MjA3NzA5ODIzNSwidmN0IjoiaHR0cHM6Ly9pYXRhLXBvYy5kZXYuaG9wYWUuYXBwLy53ZWxsLWtub3duL3ZjdC9wYXNzZW5nZXIiLCJzdGF0dXMiOnsic3RhdHVzX2xpc3QiOnsiaWR4IjowLCJ1cmkiOiJodHRwczovL2lhdGEtcG9jLmRldi5ob3BhZS5hcHAvc3RhdHVzLzEifX0sInZjdCNpbnRlZ3JpdHkiOiJzaGEyNTYtRGRRb3hFUFEvU0kvWGh6WU9vUHNIcXFjVzBXMjhucjM0Ymc3S3RZakE5ZyIsImNuZiI6eyJqd2siOnsia2V5X29wcyI6WyJ2ZXJpZnkiXSwiZXh0Ijp0cnVlLCJrdHkiOiJFQyIsIngiOiJEOVVNTXM2UVdYY294NlBEbFg1REpQU3I5U3ZuY0hSZ0RJZ09YZnVuTTQ4IiwieSI6IldrdlF4SEEweXIxZVdqajQ4SWdsbW5ZaFpYNnNlcDdqRm5DV1hTS2lsNFUiLCJjcnYiOiJQLTI1NiJ9fSwibmFtZSI6IkpvaG4gU21pdGgiLCJib29raW5nX3JlZmVyZW5jZSI6IkFCQzEyMyIsImZsaWdodF9udW1iZXIiOiJLRTEyMyIsImRlcGFydHVyZV9kYXRlIjoiMjAyNC0xMi0yMCIsImRlcGFydHVyZV9haXJwb3J0IjoiSUNOIiwiYXJyaXZhbF9haXJwb3J0IjoiSkZLIiwiX3NkIjpbImE5Qk5PelZtQVRvTHZRd0RDZUlLa2ZlWDYyVktMWDM5b0R4ZllzOVBOdXciXSwiX3NkX2FsZyI6InNoYS0yNTYifQ.P1aEOold-LvRJsWd4Oh6-sDaGaBzWiIXyz0TvZX-AYUBG4QTruhOqdj8iWSyo7imtDLNZirwymX8NoFQenKyDA~eyJ0eXAiOiJrYitqd3QiLCJhbGciOiJFUzI1NiJ9.eyJpYXQiOjE3NjE3MzgyMzUsImF1ZCI6ImRpZDp3ZWI6aWF0YS1wb2MuZGV2LmhvcGFlLmFwcCIsIm5vbmNlIjoiaWF0YS10ZXN0LW5vbmNlIiwic2RfaGFzaCI6IjczajBrUFJoVlVGUnc2WTVnYWVQcmdnSnRsMC1lZXI3aU1TOHlJTGJueVkifQ.cVthMZuy_xmPsIPkNVUa3S2WP12gas6vv7yo9zF5M6C1WHRWHyznDA54a_boKAIEIuwE7WDeZITs42Nv7reSvw"
+          },
+          "tokenType": {
+            "type": "string",
+            "description": "Token type (vc or vp). If not specified, will be auto-detected.",
+            "enum": [
+              "vc",
+              "vp"
+            ]
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "TokenStructure": {
+        "type": "object",
+        "properties": {
+          "jwtParts": {
+            "type": "number",
+            "description": "Number of JWT parts",
+            "example": 3
+          },
+          "disclosures": {
+            "type": "number",
+            "description": "Number of selective disclosures",
+            "example": 1
+          },
+          "hasKbJwt": {
+            "type": "boolean",
+            "description": "Whether the token has a key binding JWT",
+            "example": true
+          }
+        },
+        "required": [
+          "jwtParts",
+          "disclosures",
+          "hasKbJwt"
+        ]
+      },
+      "DecodedHeader": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "type": "object",
+            "description": "JWT header",
+            "example": {
+              "alg": "ES256",
+              "typ": "JWT"
+            }
+          },
+          "kbHeader": {
+            "type": "object",
+            "description": "Key binding JWT header (if present)",
+            "example": {
+              "alg": "ES256",
+              "typ": "kb+jwt"
+            }
+          }
+        },
+        "required": [
+          "header"
+        ]
+      },
+      "DecodedPayload": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "object",
+            "description": "JWT payload",
+            "example": {
+              "iss": "did:web:iata.com:poc",
+              "iat": 1761570155,
+              "exp": 1761656555,
+              "vct": "https://schemas.iata.org/vc/travel/epassport/v1.0"
+            }
+          },
+          "kbPayload": {
+            "type": "object",
+            "description": "Key binding JWT payload (if present)",
+            "example": {
+              "iat": 1761570155,
+              "aud": "did:web:iata-poc.dev.hopae.app",
+              "nonce": "iata-nonce-example"
+            }
+          }
+        },
+        "required": [
+          "payload"
+        ]
+      },
+      "SelectiveDisclosure": {
+        "type": "object",
+        "properties": {
+          "salt": {
+            "type": "string",
+            "description": "Disclosure salt",
+            "example": "fad983c6c3bf5bcb"
+          },
+          "claim": {
+            "type": "string",
+            "description": "Claim name",
+            "example": "passport_number"
+          },
+          "value": {
+            "type": "object",
+            "description": "Claim value",
+            "example": "AB1234567"
+          }
+        },
+        "required": [
+          "salt",
+          "claim",
+          "value"
+        ]
+      },
+      "TokenStatistics": {
+        "type": "object",
+        "properties": {
+          "totalLength": {
+            "type": "number",
+            "description": "Total token length in characters",
+            "example": 1024
+          },
+          "partsCount": {
+            "type": "number",
+            "description": "Number of parts separated by ~",
+            "example": 3
+          },
+          "tokenType": {
+            "type": "string",
+            "description": "Detected token type",
+            "example": "VP"
+          }
+        },
+        "required": [
+          "totalLength",
+          "partsCount",
+          "tokenType"
+        ]
+      },
+      "DecodeTokenResponse": {
+        "type": "object",
+        "properties": {
+          "structure": {
+            "description": "Token structure information",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TokenStructure"
+              }
+            ]
+          },
+          "headers": {
+            "description": "Decoded headers",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DecodedHeader"
+              }
+            ]
+          },
+          "payloads": {
+            "description": "Decoded payloads",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DecodedPayload"
+              }
+            ]
+          },
+          "disclosures": {
+            "description": "Selective disclosures (if any)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SelectiveDisclosure"
+            }
+          },
+          "resolvedClaims": {
+            "type": "object",
+            "description": "Resolved claims using SD-JWT library",
+            "example": {
+              "iss": "did:web:iata.com:poc",
+              "name": "John Smith",
+              "passport_number": "AB1234567"
+            }
+          },
+          "statistics": {
+            "description": "Token statistics",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TokenStatistics"
+              }
+            ]
+          }
+        },
+        "required": [
+          "structure",
+          "headers",
+          "payloads",
+          "statistics"
+        ]
+      },
+      "CreateW3CVPResponse": {
+        "type": "object",
+        "properties": {
+
+        }
+      },
+      "DisplayDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Human-readable description for the type",
+            "example": "A Verifiable Credential for travel agency employees"
+          },
+          "lang": {
+            "type": "string",
+            "description": "Language tag",
+            "example": "en-US"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the type",
+            "example": "Travel Agency Employee Credential"
+          },
+          "rendering": {
+            "type": "object",
+            "description": "Rendering information"
+          }
+        },
+        "required": [
+          "description",
+          "lang",
+          "name",
+          "rendering"
+        ]
+      },
+      "ClaimsDto": {
+        "type": "object",
+        "properties": {
+          "display": {
+            "type": "array",
+            "description": "Display information for the claim"
+          },
+          "path": {
+            "description": "JSON path to the claim",
+            "example": [
+              "name"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sd": {
+            "type": "string",
+            "description": "Selective disclosure setting",
+            "enum": [
+              "always",
+              "never",
+              "allowed"
+            ],
+            "example": "allowed"
+          },
+          "mandatory": {
+            "type": "boolean",
+            "description": "Mandatory claim",
+            "example": false
+          }
+        },
+        "required": [
+          "display",
+          "path",
+          "sd",
+          "mandatory"
+        ]
+      },
+      "VctMetadataDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the type",
+            "example": "Travel Agency Employee Verifiable Credential"
+          },
+          "vct": {
+            "type": "string",
+            "description": "VCT identifier (schema identifier, not API endpoint)",
+            "example": "https://schemas.iata.org/vc/employee/travel-agency/v1.0"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description for the type",
+            "example": "A Verifiable Credential for travel agency employees"
+          },
+          "display": {
+            "description": "Display information for the type",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisplayDto"
+            }
+          },
+          "claims": {
+            "description": "Claims information for the type",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClaimsDto"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "vct",
+          "description",
+          "display",
+          "claims"
+        ]
+      }
+    }
+  }
+}
